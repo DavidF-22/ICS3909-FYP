@@ -1,5 +1,6 @@
 # imports
 import time
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from tensorflow import keras as k
@@ -17,10 +18,12 @@ from tensorflow.keras import backend as K
 import gc
 import tensorflow as tf
 
+
+
 # * PARAMS ###############################################################################################################
 
 # parameters
-training_file_path = 'datasets/training/train_set_1_20_CLASH2013_paper.tsv'
+training_file_path = '__training_dataset_path__'
 
 alphabet = {"AT": 1., "TA": 1., "GC": 1., "CG": 1., "AU": 1., "UA": 1.}
 input_shape = (50, 20, 1)  # shape of the input image
@@ -29,28 +32,30 @@ epochs = 20  # number of epochs/dataset iterations
 batch_size = 32  # batch size
 
 # hyperparameter combinations
-# reg_factors = [0.01, 0.005, 0.005, 0.01, 0.003, 0.002]
-# dropout_rates = [0.5, 0.4, 0.5, 0.4, 0.3, 0.4]
+reg_factors = [0.01, 0.005, 0.005, 0.01, 0.003, 0.002]
+dropout_rates = [0.5, 0.4, 0.5, 0.4, 0.3, 0.4]
 
-reg_factors = [0.003, 0.002]
-dropout_rates = [0.3, 0.4]
+plot_names = '__plot_name__'
 
 results_file_path = 'autoTrain_modelResults.txt'
 
 testing_file_paths = [
+    # 'datasets/testing/AGO2_CLASH_Hejret2023_TEST.tsv'
     'datasets/testing/test_set_1_1_CLASH2013_paper.tsv',
     'datasets/testing/test_set_1_10_CLASH2013_paper.tsv',
     'datasets/testing/test_set_1_100_CLASH2013_paper.tsv',
 ]
 
 regularizers = {
-    # "L1" : L1, 
+    "L1" : L1, 
     "L2" : L2, 
-    # "L1L2" : L1L2
+    "L1L2" : L1L2
 }
 
 elapsed_main_timers = []
-    
+
+
+
 # * BUILDING RESNET ######################################################################################################
     
 # defining a custom Keras layer which inturn implements a residual block
@@ -189,50 +194,17 @@ def encode_dataset(data, rna_type):
     # use the function from the binding_2D_matrix_encoder module
     return binding_encoding(data, rna_type, alphabet=alphabet)
 
-# * HELPER FUNCTIONS ######################################################################################################
-
-def write_to_file(message, mode='a', file_path=results_file_path):
-    with open(file_path, mode) as results_file:
-        results_file.write(message)
-        
-def clean_up():
-    # Clear Keras session
-    K.clear_session()
-
-    # Explicitly delete objects
-    del model
-    del encoded_training_data, training_labels, encoded_validation_data, validation_labels
-
-    # Force garbage collection
-    gc.collect()
-
-    # Reset TensorFlow graph
-    tf.compat.v1.reset_default_graph()
 
 
 # * MAIN ##################################################################################################################
 
 def main():
     # clear output .txt file
-    write_to_file("", 'w')
+    with open(results_file_path, 'w') as results_file:
+        pass
 
     # start main timer
     start_main_timer = time.time()
-
-    # * LOAD AND ENCODE DATA ######################################################################################################
-
-    # load the training dataset
-    df_train = pd.read_csv(training_file_path, sep='\t')
-
-    # Split df_train into actual training and validation sets
-    training_data, validation_data = train_test_split(df_train, test_size=0.1, random_state=42)
-
-    # encode the training and validation data
-    encoded_training_data, training_labels = encode_dataset(training_data, "miRNA")
-    encoded_validation_data, validation_labels = encode_dataset(validation_data, "miRNA")
-
-    # build the ResNet model
-    input_shape = encoded_training_data.shape[1:]  # assuming the encoded data is 4D (samples, height, width, channels)
 
     # * TRAINING AND TESTING ######################################################################################################
 
@@ -240,23 +212,41 @@ def main():
     for regularizer_type in regularizers.keys():
         print(f"\nUsing Regularizer: {regularizer_type}")
         
-        write_to_file(
-            f"Using Regularizer: {regularizer_type}\n"
-            "=" * 100 + "\n", 
-            'a'
-        )
+        with open(results_file_path, 'a') as results_file:
+            results_file.write(f"Using Regularizer: {regularizer_type}\n")
+            results_file.write("=" * 100 + "\n")
                 
         # Reset graph counter for each regularizer
         c = 1
         
+        # * LOAD AND ENCODE DATA ######################################################################################################
+
+        # load the training dataset
+        print("\n----- <Loading Training Datasets> -----")
+        df_train = pd.read_csv(training_file_path, sep='\t')
+
+        # Split df_train into actual training and validation sets
+        training_data, validation_data = train_test_split(df_train, test_size=0.1, random_state=42)
+        print("----- <Training Datasets Loaded Successfully> -----\n")
+
+        # encode the training and validation data
+        print("----- <Encoding Training Datasets> -----")
+        encoded_training_data, training_labels = encode_dataset(training_data, "noncodingRNA")
+        encoded_validation_data, validation_labels = encode_dataset(validation_data, "noncodingRNA")
+        print("----- <Training Datasets Encoded Successfully> -----\n")
+
+        # get model input shape from encoded data
+        input_shape = encoded_training_data.shape[1:]  # assuming the encoded data is 4D (samples, height, width, channels)
+        
+        
+        
+        # Loop through all hyperparameter combinations
         for reg_factor, dropout_rate in zip(reg_factors, dropout_rates):        
             print(f"\nTraining model with reg_factor={reg_factor}, dropout_rate={dropout_rate}\n")
             
-            write_to_file(
-                f"Training model with reg_factor={reg_factor}, dropout_rate={dropout_rate}\n"
-                "=" * 100 + "\n\n", 
-                'a'
-            )
+            with open(results_file_path, 'a') as results_file:
+                results_file.write(f"Training model with reg_factor={reg_factor}, dropout_rate={dropout_rate}\n")
+                results_file.write("=" * 100 + "\n\n")
 
             # start training timer
             start_training_timer = time.time()
@@ -306,33 +296,39 @@ def main():
             plt.tight_layout()
             plt.grid()
 
-            plt.savefig(f'CLASH_2013({c}_{regularizer_type}).png')
+            plt.savefig(f'{plot_names}({c}_{regularizer_type}).png')
             plt.close()
             
             c += 1
+            
+            
+            
             # * TESTING THE MODEL ######################################################################################################
+            
             # evaluate the model on the testing datasets
             for i, testing_file_path in enumerate(testing_file_paths, start=1):
                 print(f"----- <Evaluating Dataset {i}: {testing_file_path}> -----")
                 
-                write_to_file(f"**Dataset {i}:** {testing_file_path}\n", 'a')
+                with open(results_file_path, 'a') as results_file:
+                    results_file.write(f"**Dataset {i}:** {testing_file_path}\n")
 
                 df_test = pd.read_csv(testing_file_path, sep='\t')
                 encoded_testing_data, testing_labels = encode_dataset(df_test, "miRNA")
+                
+                print(f"Expected input shape: {model.input_shape}")
+                print(f"Encoded testing data shape: {encoded_testing_data.shape}")
                 
                 test_loss, test_accuracy = model.evaluate(encoded_testing_data, testing_labels, verbose=0)
                 
                 predictions = model.predict(encoded_testing_data, verbose=0)
                 roc_auc = roc_auc_score(testing_labels, predictions)
                 
-                write_to_file(
-                    f"**Test loss:** {round(test_loss, 4)}\n"
-                    f"**Test accuracy:** {round(test_accuracy, 4)} - {round(test_accuracy * 100, 2)}%\n"
-                    f"**Area Under Curve:** {round(roc_auc, 4)}\n\n", 
-                    'a'
-                )
+                with open(results_file_path, 'a') as results_file:
+                    results_file.write(f"**Test loss:** {round(test_loss, 4)}\n")
+                    results_file.write(f"**Test accuracy:** {round(test_accuracy, 4)} - {round(test_accuracy * 100, 2)}%\n")
+                    results_file.write(f"**Area Under Curve:** {round(roc_auc, 4)}\n\n")
 
-                print(f"Dataset {i} Results: Loss={round(test_loss, 4)}, Accuracy={round(test_accuracy, 4)}, ROC AUC={round(roc_auc, 4)}")
+                print(f"Dataset {i} Results: Loss={round(test_loss, 4)}, Accuracy={round(test_accuracy, 4)}, AUC={round(roc_auc, 4)}")
             
             
             
@@ -343,30 +339,38 @@ def main():
             # store elapsed time
             elapsed_main_timers.append(elapsed_main_timer)
             # print main time taken
-            print(f"Time taken for training and testing with reg_factor={reg_factor}, dropout_rate={dropout_rate}, regularizer={regularizer_type}: {round(elapsed_main_timer / 60, 2)} minutes\n")
+            print(f"\nTime taken for training and testing with reg_factor={reg_factor}, dropout_rate={dropout_rate}, regularizer={regularizer_type}: {round(elapsed_main_timer / 60, 2)} minutes\n")
             
-            # write the time taken to the results file                
-            write_to_file(
-                f"**Time taken for training:** {round(elapsed_training_timer / 60, 2)} minutes\n"
-                f"**Time taken for training and testing:** {round(elapsed_main_timer / 60, 2)} minutes\n\n"
-                "=" * 100 + "\n",
-                'a'
-            )
+            # write the time taken to the results file   
+            with open(results_file_path, 'a') as results_file:
+                results_file.write(f"**Time taken for training:** {round(elapsed_training_timer / 60, 2)} minutes\n")
+                results_file.write(f"**Time taken for training and testing:** {round(elapsed_main_timer / 60, 2)} minutes\n\n")
+                results_file.write("=" * 100 + "\n")             
 
         # * CLEAN UP RESOURCES ######################################################################################################
-        clean_up()
+        
+        # Clear Keras session
+        K.clear_session()
+
+        # Explicitly delete objects
+        del model
+        del encoded_training_data, training_labels, encoded_validation_data, validation_labels
+
+        # Force garbage collection
+        gc.collect()
+
+        # Reset TensorFlow graph
+        tf.compat.v1.reset_default_graph()
 
     # calculate total time for all iterations
     total_time = sum(elapsed_main_timers)
-    print(f"\nTotal time taken for all iterations: {round(total_time / 60, 2)} minutes")
+    print(f"Total time taken for all iterations: {round(total_time / 60, 2)} minutes")
 
     # write the total time to the results file
-    write_to_file(
-        f"\nTotal time taken for all iterations: {round(total_time / 60, 2)} minutes\n",
-        'a'
-    )
+    with open(results_file_path, 'a') as results_file:
+        results_file.write(f"\nTotal time taken for all iterations: {round(total_time / 60, 2)} minutes\n")
 
-    print(f"\nResults saved to {results_file_path}. Graphs saved as 'CLASH(<#>_<regularizer_type>).png'.")
+    print(f"\nResults saved to {results_file_path}. Graphs saved as '{plot_names}(<#>_<regularizer_type>).png'.")
 
 
 
