@@ -24,7 +24,7 @@ import tensorflow as tf
 
 # parameters
 training_file_paths = [
-    'datasets/Balanced_dataset.tsv',
+    'datasets/training/Balanced_dataset.tsv',
     # 'datasets/training/train_set_1_20_CLASH2013_paper.tsv'
 ]
 
