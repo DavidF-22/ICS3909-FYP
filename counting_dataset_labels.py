@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import numpy as np
 
 # define your dataset directory
 dataset_dir = 'datasets'
@@ -22,3 +23,18 @@ for root, _, files in os.walk(dataset_dir):
         
         # print the counts for the current file with formatted output
         print(f'Dataset: {file:<45} Num of Ones: {count_of_ones:<10} Num of Zeros: {count_of_zeros:<10}')
+
+
+# * Generating Evenly Spaced Values ############################################################################
+
+
+# Define the range and number of values
+start = 0.05
+end = 0.25
+num_values = 6
+
+# Generate the evenly spaced values
+values = np.linspace(start, end, num_values)
+
+# Print the values
+print("\nEvenly spaced values:", values)
