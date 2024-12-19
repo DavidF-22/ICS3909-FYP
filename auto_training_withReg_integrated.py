@@ -3,6 +3,7 @@ import time
 import os
 
 import pandas as pd
+import matplotlib
 import matplotlib.pyplot as plt
 from tensorflow import keras as k
 from tensorflow.keras import layers, models
@@ -14,9 +15,12 @@ from sklearn.metrics import roc_auc_score, roc_curve, precision_recall_curve, au
 from encoder.binding_2D_matrix_encoder import binding_encoding
 # from miRBench.encoder import miRBindEncoder
 
-# Clean up resources to avoid OOM
+# clean up resources to avoid OOM
 import gc
 import tensorflow as tf
+
+# use non interactive backend for matplotlib
+matplotlib.use('Agg')
 
 
 # * PARAMS ###############################################################################################################
@@ -24,7 +28,7 @@ import tensorflow as tf
 
 # parameters
 training_file_paths = [
-    'datasets/Balanced_dataset.tsv',
+    'datasets/training/Balanced_dataset.tsv',
     # 'datasets/training/train_set_1_20_CLASH2013_paper.tsv'
 ]
 
@@ -38,19 +42,15 @@ batch_size = 32  # batch size
 reg_factors = [0.01, 0.005, 0.005, 0.01, 0.003, 0.002]
 dropout_rates = [0.05, 0.09, 0.13, 0.17, 0.21, 0.25]
 
-plot_names = 'CLASH_2013'
-
 results_file_path = 'autoTrain_modelResults.txt'
 
 '''
 Program stops running after completion of the first two regularisers. 
-If there is not a fix split the process into two separate stages.
-
-L1 and L2 then L1L2 separately.
+If there is not a fix split the regularisers into seperate processes.
 '''
 regularizers = {
-    "L1" : L1, 
-    "L2" : L2, 
+    # "L1" : L1, 
+    # "L2" : L2, 
     "L1L2" : L1L2
 }
 
@@ -198,7 +198,7 @@ def encode_dataset(data, rna_type):
 # * PLOTTING ##############################################################################################################
 
 
-def plot_training(history, count_plots, regularizer_type):
+def plot_training(history, plot_names, count_plots, regularizer_type):
     # plotting training and validation accuracy and loss
     plt.figure(figsize=(12, 6))
     plt.subplot(1, 2, 1)
@@ -223,10 +223,10 @@ def plot_training(history, count_plots, regularizer_type):
     plt.tight_layout()
     plt.grid()
 
-    plt.savefig(f'training_{plot_names}({count_plots}_{regularizer_type}).png')
-    plt.close()
+    plt.savefig(f'training_{plot_names}_80-10-10({count_plots}_{regularizer_type}).png')
+    plt.close('all')
 
-def plot_roc_curve(testing_labels, predictions, roc_auc, count_plots, regularizer_type):
+def plot_roc_curve(testing_labels, predictions, roc_auc, plot_names, count_plots, regularizer_type):
     # Plot ROC-AUC curve
     fpr, tpr, thresholds = roc_curve(testing_labels, predictions)
     plt.figure(figsize=(8, 6))
@@ -238,10 +238,10 @@ def plot_roc_curve(testing_labels, predictions, roc_auc, count_plots, regularize
     plt.legend(loc="lower right")
     plt.grid(alpha=0.3)
 
-    plt.savefig(f'ROC_{plot_names}({count_plots}_{regularizer_type}).png')
-    plt.close()
+    plt.savefig(f'ROC_{plot_names}_80-10-10({count_plots}_{regularizer_type}).png')
+    plt.close('all')
 
-def plot_pr_curve(testing_labels, predictions, count_plots, regularizer_type):
+def plot_pr_curve(testing_labels, predictions, plot_names, count_plots, regularizer_type):
     precision, recall, thresholds = precision_recall_curve(testing_labels, predictions)
     pr_auc = auc(recall, precision)  # Compute the AUC for Precision-Recall Curve
             
@@ -254,8 +254,8 @@ def plot_pr_curve(testing_labels, predictions, count_plots, regularizer_type):
     plt.legend(loc="lower left")
     plt.grid(alpha=0.3)
 
-    plt.savefig(f'PR_{plot_names}({count_plots}_{regularizer_type}).png')
-    plt.close()
+    plt.savefig(f'PR_{plot_names}_80-10-10({count_plots}_{regularizer_type}).png')
+    plt.close('all')
     
     return pr_auc
 
@@ -271,26 +271,33 @@ def main():
     # start main timer
     start_main_timer = time.time()
 
+
     # * TRAINING AND TESTING ######################################################################################################
 
+
     for training_file_path in training_file_paths:
+        # Initialising column name - default to 'miRNA' - to account for different column names in different datasets
+        column_name = 'noncodingRNA'
+        # Initialising plot names - default to 'Balanced_dataset' - to account for different plot names in different datasets
+        plot_names = 'Balanced_dataset'
+        
+        # change column name if the dataset is CLASH2013 and plot names
+        if os.path.basename(training_file_path) == 'train_set_1_20_CLASH2013_paper.tsv':
+            column_name = 'miRNA'
+            plot_names = 'CLASH_2013'
+            
         # Loop through all regularizer types
         for regularizer_type in regularizers.keys():
             # Print regularizer type
-            print(f"\nUsing Regularizer: {regularizer_type}")
+            print(f"\n\nUsing Regularizer: {regularizer_type}")
             
             with open(results_file_path, 'a') as results_file:
                 results_file.write(f"Using Regularizer: {regularizer_type}\n")
                 results_file.write("=" * 100 + "\n")
-                
-            # Reset elapsed main timers for each regularizer
-            elapsed_main_timers = []
-            # Reset graph counter for each regularizer
-            count_plots = 1
-            # Initialising column name - default to 'miRNA' - to account for different column names in different datasets
-            column_name = 'noncodingRNA'
+
             
             # * LOAD AND ENCODE DATA ######################################################################################################
+
 
             # load the training dataset
             print("\n----- <Loading Training Datasets> -----")
@@ -299,10 +306,6 @@ def main():
             # Split df_train into actual training and validation sets
             training_data, testing_data = train_test_split(df_train, test_size=0.1, random_state=42)
             print("----- <Training Datasets Loaded Successfully> -----\n")
-
-            # change column name if the dataset is CLASH2013 and plot names
-            if os.path.basename(training_file_path) == 'train_set_1_20_CLASH2013_paper.tsv':
-                column_name = 'miRNA'
                 
             # encode the training and validation data
             print("----- <Encoding Training Datasets> -----")
@@ -313,14 +316,15 @@ def main():
             # get model input shape from encoded data
             input_shape = encoded_training_data.shape[1:]  # assuming the encoded data is 4D (samples, height, width, channels)
             
-            
+            # Reset graph counter for each regularizer
+            count_plots = 1
             
             # Loop through all hyperparameter combinations
-            for reg_factor, dropout_rate in zip(reg_factors, dropout_rates):        
-                print(f"\nTraining model with reg_factor={reg_factor}, dropout_rate={dropout_rate}\n")
+            for reg_factor, dropout_rate in zip(reg_factors, dropout_rates): 
+                print(f"Training model with {os.path.basename(training_file_path)}, reg_factor={reg_factor}, dropout_rate={dropout_rate}\n")
                 
                 with open(results_file_path, 'a') as results_file:
-                    results_file.write(f"Training model with reg_factor={reg_factor}, dropout_rate={dropout_rate}\n")
+                    results_file.write(f"Training model with {os.path.basename(training_file_path)}, reg_factor={reg_factor}, dropout_rate={dropout_rate}\n")
                     results_file.write("=" * 100 + "\n\n")
 
                 # start training timer
@@ -329,7 +333,9 @@ def main():
                 # build model
                 model = build_resnet(input_shape, reg_factor, dropout_rate, regularizer_type)
 
+
                 # * TRAINING THE MODEL ######################################################################################################
+
 
                 # train the model
                 history = model.fit(encoded_training_data, 
@@ -346,9 +352,11 @@ def main():
                 print(f"\nTime taken for training with reg_factor={reg_factor}, dropout_rate={dropout_rate}, regularizer={regularizer_type}: {round(elapsed_training_timer / 60, 2)} minutes\n")
                 
                 # plot training and validation accuracy and loss
-                plot_training(history, count_plots, regularizer_type)
+                plot_training(history, plot_names, count_plots, regularizer_type)
+                
                 
                 # * TESTING THE MODEL ######################################################################################################
+                
                 
                 encoded_testing_data, testing_labels = encode_dataset(testing_data, column_name)
                 
@@ -362,72 +370,59 @@ def main():
                 roc_auc = roc_auc_score(testing_labels, predictions)
                 
                 # Plot ROC curve
-                plot_roc_curve(testing_labels, predictions, roc_auc, count_plots, regularizer_type)
+                plot_roc_curve(testing_labels, predictions, roc_auc, plot_names, count_plots, regularizer_type)
                 
                 # Plot Precision-Recall curve
-                pr_auc = plot_pr_curve(testing_labels, predictions, count_plots, regularizer_type)
+                pr_auc = plot_pr_curve(testing_labels, predictions, plot_names, count_plots, regularizer_type)
                 
                 count_plots += 1
                 
                 with open(results_file_path, 'a') as results_file:
-                    results_file.write(f"**Test loss:** {round(test_loss, 4)}\n")
-                    results_file.write(f"**Test accuracy:** {round(test_accuracy, 4)} - {round(test_accuracy * 100, 2)}%\n")
-                    results_file.write(f"**ROC-AUC:** {round(roc_auc, 4)}\n")
-                    results_file.write(f"**PR-AUC:** {round(pr_auc, 4)}\n\n")
+                    results_file.write(f"**Test loss:** {round(test_loss, 3)}\n")
+                    results_file.write(f"**Test accuracy:** {round(test_accuracy, 3)} - {round(test_accuracy * 100, 2)}%\n")
+                    results_file.write(f"**ROC-AUC:** {round(roc_auc, 3)}\n")
+                    results_file.write(f"**PR-AUC:** {round(pr_auc, 3)}\n\n")
                     
 
-                # print(f"Dataset {i} Results: Loss={round(test_loss, 4)}, Accuracy={round(test_accuracy, 4)}, AUC={round(roc_auc, 4)}")
-                print(f"Results: Test_Loss={round(test_loss, 4)}, Test_Accuracy={round(test_accuracy, 4)}, ROC-AUC={round(roc_auc, 4)}, PR-AUC={round(pr_auc, 4)}")
-                
+                print(f"Results: Test_Loss={round(test_loss, 3)}, Test_Accuracy={round(test_accuracy, 3)}, ROC-AUC={round(roc_auc, 3)}, PR-AUC={round(pr_auc, 3)}")
                 
                 
                 # end main timer
                 end_main_timer = time.time()
                 # calculate main time taken
                 elapsed_main_timer = end_main_timer - start_main_timer
-                # store elapsed time
-                elapsed_main_timers.append(elapsed_main_timer)
                 # print main time taken
-                print(f"\nTime taken for training and testing with reg_factor={reg_factor}, dropout_rate={dropout_rate}, regularizer={regularizer_type}: {round(elapsed_main_timer / 60, 2)} minutes\n")
+                print(f"\n\nTime taken for training and testing with reg_factor={reg_factor}, dropout_rate={dropout_rate}, regularizer={regularizer_type}: {round(elapsed_main_timer / 60, 2)} minutes\n")
                 
                 # write the time taken to the results file   
                 with open(results_file_path, 'a') as results_file:
                     results_file.write(f"**Time taken for training:** {round(elapsed_training_timer / 60, 2)} minutes\n")
-                    results_file.write(f"**Time taken for training and testing:** {round(elapsed_main_timer / 60, 2)} minutes\n\n")
-                    results_file.write("=" * 100 + "\n")             
-
-        
-                # * CLEAN UP RESOURCES ######################################################################################################
-                
+                    results_file.write(f"**Time taken for training and testing:** {round(elapsed_main_timer / 60, 2)} minutes\n\n")          
+                    results_file.write("=" * 100 + "\n")
+    
+    
+            # * CLEAN UP RESOURCES ######################################################################################################
             
-                # Explicitly delete objects
-                del model, history
-                del encoded_training_data, training_labels
-                del encoded_testing_data, testing_labels, predictions
-                del roc_auc, pr_auc
+        
+            # Explicitly delete objects
+            del model, history
+            del encoded_training_data, training_labels
+            del encoded_testing_data, testing_labels, predictions
+            del roc_auc, pr_auc
 
-                # Force garbage collection
-                gc.collect()
+            # Force garbage collection
+            gc.collect()
 
-                # Reset TensorFlow graph
-                tf.keras.backend.clear_session()
-                tf.compat.v1.reset_default_graph()
+            # Reset TensorFlow graph
+            tf.keras.backend.clear_session()
+            tf.compat.v1.reset_default_graph()
 
 
-
-            # calculate total time for all iterations
-            total_time = sum(elapsed_main_timers)
-            print(f"\nTotal time taken for all iterations: {round(total_time / 60, 2)} minutes")
-
-            # write the total time to the results file
-            with open(results_file_path, 'a') as results_file:
-                results_file.write(f"\nTotal time taken for all iterations: {round(total_time / 60, 2)} minutes\n")
-
-            print(f"\nResults saved to {results_file_path}. Graphs saved as '<plot_type>_{plot_names}(<#>_<regularizer_type>).png'.")
-
+    print(f"\nResults saved to {results_file_path}. Graphs saved as '<plot_type>_{plot_names}_80-10-10(<#>_<regularizer_type>).png'.")
 
 
 # * EXECUTION #############################################################################################################
+
 
 # call main function
 if __name__ == '__main__':
