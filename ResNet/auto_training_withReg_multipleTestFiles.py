@@ -1,4 +1,7 @@
 # imports
+import sys
+sys.path.append('./')
+
 import time
 import os
 
@@ -17,6 +20,7 @@ from encoder.binding_2D_matrix_encoder import binding_encoding
 # clean up resources to avoid OOM
 import gc
 import tensorflow as tf
+
 
 # use non interactive backend for matplotlib
 matplotlib.use('Agg')
@@ -412,7 +416,14 @@ def main():
                     results_file.write("=" * 100 + "\n")  
         
         
-            # * CLEAN UP RESOURCES ######################################################################################################
+        # * SAVE MODEL ##############################################################################################################
+        
+        # print("\n ----- <Saving Model> -----")
+        # model.save(f"ResNet_multipleTestFiles(WithReg).keras")
+        # print("----- <Model Saved Successfully> -----\n")
+        
+        
+        # * CLEAN UP RESOURCES ######################################################################################################
             
             
             # Explicitly delete objects

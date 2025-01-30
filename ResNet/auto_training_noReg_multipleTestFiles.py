@@ -1,4 +1,7 @@
 # imports
+import sys
+sys.path.append('./')
+
 import time
 import os
 
@@ -16,6 +19,7 @@ from encoder.binding_2D_matrix_encoder import binding_encoding
 # clean up resources to avoid OOM
 import gc
 import tensorflow as tf
+
 
 # use non interactive backend for matplotlib
 matplotlib.use('Agg')
@@ -362,8 +366,14 @@ def main():
             results_file.write("=" * 100 + "\n")
                          
 
+        # * SAVE MODEL ##############################################################################################################
+        
+        # print("\n ----- <Saving Model> -----")
+        # model.save(f"ResNet_multipleTestFiles(NoReg).h5")
+        # print("----- <Model Saved Successfully> -----\n")
+        
+        
         # * CLEAN UP RESOURCES ######################################################################################################
-
 
         # Explicitly delete objects
         del model, history
@@ -379,9 +389,6 @@ def main():
         tf.compat.v1.reset_default_graph()
 
     print(f"\nResults saved to {results_file_path}. Graphs saved as '<plot_type>_{plot_names}_MultiTest(<#>_NoReg).png'.")
-
-
-# * EXECUTION #############################################################################################################
 
 
 # call main function

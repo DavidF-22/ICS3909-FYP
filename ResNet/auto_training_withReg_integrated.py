@@ -1,4 +1,7 @@
 # imports
+import sys
+sys.path.append('./')
+
 import time
 import os
 
@@ -19,6 +22,7 @@ from encoder.binding_2D_matrix_encoder import binding_encoding
 import gc
 import tensorflow as tf
 
+
 # use non interactive backend for matplotlib
 matplotlib.use('Agg')
 
@@ -28,8 +32,8 @@ matplotlib.use('Agg')
 
 # parameters
 training_file_paths = [
-    'datasets/training/Balanced_dataset.tsv',
-    # 'datasets/training/train_set_1_20_CLASH2013_paper.tsv'
+    # 'datasets/training/Balanced_dataset.tsv',
+    'datasets/training/train_set_1_20_CLASH2013_paper.tsv'
 ]
 
 alphabet = {"AT": 1., "TA": 1., "GC": 1., "CG": 1., "AU": 1., "UA": 1.}
@@ -223,7 +227,7 @@ def plot_training(history, plot_names, count_plots, regularizer_type):
     plt.tight_layout()
     plt.grid()
 
-    plt.savefig(f'training_{plot_names}_80-10-10({count_plots}_{regularizer_type}).png')
+    plt.savefig(f'training_{plot_names}_85-5-10({count_plots}_{regularizer_type}).png')
     plt.close('all')
 
 def plot_roc_curve(testing_labels, predictions, roc_auc, plot_names, count_plots, regularizer_type):
@@ -238,7 +242,7 @@ def plot_roc_curve(testing_labels, predictions, roc_auc, plot_names, count_plots
     plt.legend(loc="lower right")
     plt.grid(alpha=0.3)
 
-    plt.savefig(f'ROC_{plot_names}_80-10-10({count_plots}_{regularizer_type}).png')
+    plt.savefig(f'ROC_{plot_names}_85-5-10({count_plots}_{regularizer_type}).png')
     plt.close('all')
 
 def plot_pr_curve(testing_labels, predictions, plot_names, count_plots, regularizer_type):
@@ -254,7 +258,7 @@ def plot_pr_curve(testing_labels, predictions, plot_names, count_plots, regulari
     plt.legend(loc="lower left")
     plt.grid(alpha=0.3)
 
-    plt.savefig(f'PR_{plot_names}_80-10-10({count_plots}_{regularizer_type}).png')
+    plt.savefig(f'PR_{plot_names}_85-5-10({count_plots}_{regularizer_type}).png')
     plt.close('all')
     
     return pr_auc
@@ -317,7 +321,7 @@ def main():
             input_shape = encoded_training_data.shape[1:]  # assuming the encoded data is 4D (samples, height, width, channels)
             
             # Reset graph counter for each regularizer
-            count_plots = 1
+            count_plots = 6
             
             # Loop through all hyperparameter combinations
             for reg_factor, dropout_rate in zip(reg_factors, dropout_rates): 
@@ -342,7 +346,7 @@ def main():
                                     training_labels, 
                                     epochs=epochs,
                                     batch_size=batch_size, 
-                                    validation_split=0.1,
+                                    validation_split=0.05,   # 0.1 for 80-10-10 split - 0.05 for 85-5-10 split
                                     verbose=1)
 
                 # end training timer
@@ -401,7 +405,14 @@ def main():
                     results_file.write("=" * 100 + "\n")
     
     
-            # * CLEAN UP RESOURCES ######################################################################################################
+        # * SAVE MODEL ##############################################################################################################
+        
+        # print("\n ----- <Saving Model> -----")
+        # model.save(f"ResNet_85-5-10(WithReg).keras")
+        # print("----- <Model Saved Successfully> -----\n")
+        
+        
+        # * CLEAN UP RESOURCES ######################################################################################################
             
         
             # Explicitly delete objects
@@ -419,9 +430,6 @@ def main():
 
 
     print(f"\nResults saved to {results_file_path}. Graphs saved as '<plot_type>_{plot_names}_80-10-10(<#>_<regularizer_type>).png'.")
-
-
-# * EXECUTION #############################################################################################################
 
 
 # call main function
