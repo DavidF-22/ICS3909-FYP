@@ -8,14 +8,16 @@ import os
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
-from tensorflow import keras as k
 from tensorflow.keras import layers, models
 from tensorflow.keras.utils import register_keras_serializable
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.regularizers import L1, L2, L1L2
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score, roc_curve, precision_recall_curve, auc
-from encoder.binding_2D_matrix_encoder import binding_encoding
+from encoders.binding_2D_matrix_encoder import binding_encoding
+# from code.machine_learning.encode.binding_2D_matrix_encoder import binding_encoding
 # from miRBench.encoder import miRBindEncoder
+
 
 # clean up resources to avoid OOM
 import gc
@@ -26,45 +28,42 @@ import tensorflow as tf
 matplotlib.use('Agg')
 
 
-# * PARAMS ###############################################################################################################
+# * PARAMS ---
 
 
 # parameters
 training_file_paths = [
-    # 'datasets/training/Balanced_dataset.tsv',
-    'datasets/training/train_set_1_20_CLASH2013_paper.tsv'
+    'datasets/training/Balanced_dataset.tsv',
+    # 'datasets/training/train_set_1_20_CLASH2013_paper.tsv'
 ]
 
 alphabet = {"AT": 1., "TA": 1., "GC": 1., "CG": 1., "AU": 1., "UA": 1.}
-input_shape = (50, 20, 1)  # shape of the input image
 learning_rate = 0.001  # learning rate
 epochs = 20  # number of epochs/dataset iterations
 batch_size = 32  # batch size
+split_used = '80-10-10'
+
+results_file_path = 'autoTrain_modelResults.txt'
+
+# define the directory where you want to save the model
+save_dir = "SavedModels/ResNet"
 
 # hyperparameter combinations
 reg_factors = [0.01, 0.005, 0.005, 0.01, 0.003, 0.002]
 dropout_rates = [0.05, 0.09, 0.13, 0.17, 0.21, 0.25]
 
-results_file_path = 'autoTrain_modelResults.txt'
-
-testing_file_paths = [
-    'datasets/testing/test_set_1_1_CLASH2013_paper.tsv',
-    'datasets/testing/test_set_1_10_CLASH2013_paper.tsv',
-    'datasets/testing/test_set_1_100_CLASH2013_paper.tsv',
-]
-
 '''
 Program stops running after completion of the first two regularisers. 
-If there is not a fix split the regularisers into seperate processes.
+If there is not a fix, split the regularisers into seperate processes.
 '''
 regularizers = {
-    # "L1" : L1, 
-    # "L2" : L2, 
-    "L1L2" : L1L2
+    "L1" : L1, 
+    "L2" : L2, 
+    # "L1L2" : L1L2
 }
 
 
-# * BUILDING RESNET ######################################################################################################
+# * BUILDING RESNET ---
 
 
 # defining a custom Keras layer which inturn implements a residual block
@@ -92,7 +91,7 @@ class ResBlock(layers.Layer):
         self.filters = filters
         self.kernel_size = kernel_size
         
-        # Dynamically select the regularizer
+        # dynamically select the regularizer
         reg_class = regularizers.get(regularizer_type)
         if not reg_class:
             raise ValueError(f"Unsupported regularizer type: {regularizer_type}")
@@ -166,7 +165,7 @@ def build_resnet(input_shape, reg_factor, dropout_rate, regularizer_type):
     """
     Builds a simple ResNet model using custom residual blocks.
     """
-    # Dynamically select the regularizer
+    # dynamically select the regularizer
     reg_class = regularizers.get(regularizer_type)
     if reg_class is None:
         raise ValueError(f"Unsupported regularizer type: {regularizer_type}")
@@ -185,16 +184,17 @@ def build_resnet(input_shape, reg_factor, dropout_rate, regularizer_type):
     # flatten and add dense layers
     x = layers.Flatten()(x)
     x = layers.Dense(512, activation='relu', kernel_regularizer=reg_class(reg_factor))(x)
-    x = layers.Dropout(dropout_rate)(x)  # Dropout layer
+    x = layers.Dropout(dropout_rate)(x)  # dropout layer
     x = layers.Dense(1, activation='sigmoid', kernel_regularizer=reg_class(reg_factor))(x)  # binary classification (0 or 1)
 
     # build model
     model = models.Model(inputs, x)
     # compile the model
     model.compile(optimizer=Adam(learning_rate=learning_rate), loss='binary_crossentropy',metrics=['accuracy'])
-    # # output model summary
-    # model.summary()
-    # print("\n")
+    # output model summary
+    model.summary()
+    
+    print()
     
     return model
 
@@ -204,17 +204,17 @@ def encode_dataset(data, rna_type):
     return binding_encoding(data, rna_type, alphabet=alphabet)
 
 
-# * PLOTTING ##############################################################################################################
+# * PLOTTING ---
 
 
-def plot_training(history, plot_names, count_plots, regularizer_type):
+def plot_training(history, plot_names, split, regularizer_type, count_models, count_plots):
     # plotting training and validation accuracy and loss
     plt.figure(figsize=(12, 6))
     plt.subplot(1, 2, 1)
     plt.plot(history.history['accuracy'], label='Train Accuracy')
     plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
     plt.axis(ymin=0.4, ymax=1)
-    plt.title('Model Accuracy')
+    plt.title('ResNet - Model Accuracy')
     plt.ylabel('Accuracy')
     plt.xlabel('Epochs')
     plt.legend(['Train_Accuracy', 'Validation_Accuracy'])
@@ -225,51 +225,51 @@ def plot_training(history, plot_names, count_plots, regularizer_type):
     plt.subplot(1, 2, 2)
     plt.plot(history.history['loss'], label='Train Loss')
     plt.plot(history.history['val_loss'], label='Validation Loss')
-    plt.title('Model Loss')
+    plt.title('ResNet - Model Loss')
     plt.ylabel('Loss')
     plt.xlabel('Epochs')
     plt.legend(['Train_Loss', 'Validation_Loss'])
     plt.tight_layout()
     plt.grid()
 
-    plt.savefig(f'training_{plot_names}_MultiTest({count_plots}_{regularizer_type}).png')
+    plt.savefig(f'training_{plot_names}_{split}(WithReg-{regularizer_type})_{count_models}.{count_plots}.png')
     plt.close('all')
 
-def plot_roc_curve(testing_labels, predictions, roc_auc, plot_names, count_plots, regularizer_type):
-    # Plot ROC-AUC curve
+def plot_roc_curve(testing_labels, predictions, roc_auc, plot_names, split, regularizer_type, count_models, count_plots):
+    # plot ROC-AUC curve
     fpr, tpr, thresholds = roc_curve(testing_labels, predictions)
     plt.figure(figsize=(8, 6))
     plt.plot(fpr, tpr, label=f"ROC Curve (AUC = {roc_auc:.4f})", linewidth=2)
     plt.plot([0, 1], [0, 1], 'k--', label="Random Guess")
     plt.xlabel("False Positive Rate")
     plt.ylabel("True Positive Rate")
-    plt.title("Receiver Operating Characteristic (ROC) Curve")
+    plt.title("ResNet - Receiver Operating Characteristic (ROC) Curve")
     plt.legend(loc="lower right")
     plt.grid(alpha=0.3)
 
-    plt.savefig(f'ROC_{plot_names}_MultiTest({count_plots}_{regularizer_type}).png')
+    plt.savefig(f'ROC_{plot_names}_{split}(WithReg-{regularizer_type})_{count_models}.{count_plots}.png')
     plt.close('all')
 
-def plot_pr_curve(testing_labels, predictions, plot_names, count_plots, regularizer_type):
+def plot_pr_curve(testing_labels, predictions, plot_names, split, regularizer_type, count_models, count_plots):
     precision, recall, thresholds = precision_recall_curve(testing_labels, predictions)
-    pr_auc = auc(recall, precision)  # Compute the AUC for Precision-Recall Curve
+    pr_auc = auc(recall, precision)  # compute the AUC for Precision-Recall Curve
             
-    # Plot Precision-Recall curve
+    # plot Precision-Recall curve
     plt.figure(figsize=(8, 6))
     plt.plot(recall, precision, label=f"Precision-Recall Curve (AUC = {pr_auc:.4f})", linewidth=2)
     plt.xlabel("Recall")
     plt.ylabel("Precision")
-    plt.title("Precision-Recall Curve")
+    plt.title("ResNet - Precision-Recall Curve")
     plt.legend(loc="lower left")
     plt.grid(alpha=0.3)
 
-    plt.savefig(f'PR_{plot_names}_MultiTest({count_plots}_{regularizer_type}).png')
+    plt.savefig(f'PR_{plot_names}_{split}(WithReg-{regularizer_type})_{count_models}.{count_plots}.png')
     plt.close('all')
     
     return pr_auc
 
 
-# * MAIN ##################################################################################################################
+# * MAIN ---
 
 
 def main():
@@ -281,54 +281,58 @@ def main():
     start_main_timer = time.time()
 
 
-    # * TRAINING AND TESTING ######################################################################################################
-    
-    
+    # * TRAINING AND TESTING ---
+
+
     for training_file_path in training_file_paths:
-        # Initialising column name - default to 'miRNA' - to account for different column names in different datasets
-        column_name = 'noncodingRNA'
-        # Initialising plot names - default to 'Balanced_dataset' - to account for different plot names in different datasets
-        plot_names = 'Balanced_dataset'
-        
         # change column name if the dataset is CLASH2013 and plot names
         if os.path.basename(training_file_path) == 'train_set_1_20_CLASH2013_paper.tsv':
             column_name = 'miRNA'
-            plot_names = 'CLASH_2013'
+            dataset_name = 'CLASH_2013'
+        else:
+            column_name = 'noncodingRNA'
+            dataset_name = 'Balanced_dataset'
             
-        # Loop through all regularizer types
+        # loop through all regularizer types
         for regularizer_type in regularizers.keys():
-            # Print regularizer type
+            # print regularizer type
             print(f"\n\nUsing Regularizer: {regularizer_type}")
             
             with open(results_file_path, 'a') as results_file:
                 results_file.write(f"Using Regularizer: {regularizer_type}\n")
                 results_file.write("=" * 100 + "\n")
+
             
-            
-            # * LOAD AND ENCODE DATA ######################################################################################################
+            # * LOAD AND ENCODE DATA ---
 
 
             # load the training dataset
-            print("\n----- <Loading Training Datasets> -----")
+            print("\n----- <Loading Training Data> -----")
             df_train = pd.read_csv(training_file_path, sep='\t')
-            print("----- <Training Datasets Loaded Successfully> -----\n")
+
+            # split df_train into actual training and validation sets
+            training_data, testing_data = train_test_split(df_train, test_size=0.1, random_state=42)
+            print("----- <Training Data Loaded Successfully> -----\n")
                 
-            # encode the training and validation data
-            print("----- <Encoding Training Datasets> -----")
-            encoded_training_data, training_labels = encode_dataset(df_train, column_name)
+            # encode the training data
+            print("----- <Encoding Training Data> -----")
+            encoded_training_data, training_labels = encode_dataset(training_data, column_name)
             # encoded_validation_data, validation_labels = encode_dataset(validation_data, "noncodingRNA")
-            print("----- <Training Datasets Encoded Successfully> -----")
+            print("----- <Training Data Encoded Successfully> -----\n")
 
             # get model input shape from encoded data
             input_shape = encoded_training_data.shape[1:]  # assuming the encoded data is 4D (samples, height, width, channels)
-
-            # Reset graph counter for each regularizer
-            count_plots = 1
+            print(f"Input shape: {input_shape}\n")
             
-            # Loop through all hyperparameter combinations
+            # reset model count
+            count_models = 1
+            
+            # loop through all hyperparameter combinations
             for reg_factor, dropout_rate in zip(reg_factors, dropout_rates): 
+                # reset plot count
+                count_plots = 1
                 
-                print(f"\nTraining model with {os.path.basename(training_file_path)}, reg_factor={reg_factor}, dropout_rate={dropout_rate}\n")
+                print(f"Training model with {os.path.basename(training_file_path)}, reg_factor={reg_factor}, dropout_rate={dropout_rate}\n")
                 
                 with open(results_file_path, 'a') as results_file:
                     results_file.write(f"Training model with {os.path.basename(training_file_path)}, reg_factor={reg_factor}, dropout_rate={dropout_rate}\n")
@@ -336,12 +340,13 @@ def main():
 
                 # start training timer
                 start_training_timer = time.time()
+                
 
                 # build model
                 model = build_resnet(input_shape, reg_factor, dropout_rate, regularizer_type)
 
 
-                # * TRAINING THE MODEL ######################################################################################################
+                # * TRAINING THE MODEL ---
 
 
                 # train the model
@@ -349,7 +354,7 @@ def main():
                                     training_labels, 
                                     epochs=epochs,
                                     batch_size=batch_size, 
-                                    validation_split=0.1,
+                                    validation_split=0.1,   # 0.1 for 80-10-10 split - 0.05 for 85-5-10 split
                                     verbose=1)
 
                 # end training timer
@@ -359,91 +364,93 @@ def main():
                 print(f"\nTime taken for training with reg_factor={reg_factor}, dropout_rate={dropout_rate}, regularizer={regularizer_type}: {round(elapsed_training_timer / 60, 2)} minutes\n")
                 
                 # plot training and validation accuracy and loss
-                plot_training(history, plot_names, count_plots, regularizer_type)
+                plot_training(history, dataset_name, split_used, regularizer_type, count_models, count_plots)
+                count_plots += 1
                 
                 
-                # * TESTING THE MODEL ######################################################################################################
+                # * TESTING THE MODEL ---
                 
                 
-                # evaluate the model on the testing datasets
-                for i, testing_file_path in enumerate(testing_file_paths, start=1):
-                    print(f"----- <Evaluating Dataset {i}: {os.path.basename(testing_file_path)}> -----")
+                # encode the testing data
+                print("----- <Encoding Testing Data> -----")
+                encoded_testing_data, testing_labels = encode_dataset(testing_data, column_name)
+                print("----- <Testing Data Encoded Successfully> -----\n")
+                
+                # validate input shape
+                print(f"Expected input shape: {model.input_shape}")
+                print(f"Encoded testing data shape: {encoded_testing_data.shape}\n")
+                
+                test_loss, test_accuracy = model.evaluate(encoded_testing_data, testing_labels, verbose=0)
+                
+                predictions = model.predict(encoded_testing_data, verbose=0)
+                roc_auc = roc_auc_score(testing_labels, predictions)
+                
+                # plot ROC curve
+                plot_roc_curve(testing_labels, predictions, roc_auc, dataset_name, split_used, regularizer_type, count_models, count_plots)
+                count_plots += 1
+                
+                # plot Precision-Recall curve
+                pr_auc = plot_pr_curve(testing_labels, predictions, dataset_name, split_used, regularizer_type, count_models, count_plots)
+                count_plots += 1
+                
+                with open(results_file_path, 'a') as results_file:
+                    results_file.write(f"**Test loss:** {round(test_loss, 3)}\n")
+                    results_file.write(f"**Test accuracy:** {round(test_accuracy, 3)} - {round(test_accuracy * 100, 2)}%\n")
+                    results_file.write(f"**ROC-AUC:** {round(roc_auc, 3)}\n")
+                    results_file.write(f"**PR-AUC:** {round(pr_auc, 3)}\n\n")
                     
-                    with open(results_file_path, 'a') as results_file:
-                        results_file.write(f"plot_number: {count_plots}, {os.path.basename(testing_file_path)}\n")
 
-                    df_test = pd.read_csv(testing_file_path, sep='\t')
-                    
-                    encoded_testing_data, testing_labels = encode_dataset(df_test, 'miRNA')
-                    
-                    # validate input shape
-                    print(f"Expected input shape: {model.input_shape}")
-                    print(f"Encoded testing data shape: {encoded_testing_data.shape}")
-                    
-                    test_loss, test_accuracy = model.evaluate(encoded_testing_data, testing_labels, verbose=0)
-                    
-                    predictions = model.predict(encoded_testing_data, verbose=0)
-                    roc_auc = roc_auc_score(testing_labels, predictions)
-                    
-                    # Plot ROC curve
-                    plot_roc_curve(testing_labels, predictions, roc_auc, plot_names, count_plots, regularizer_type)
-                    
-                    # Plot Precision-Recall curve
-                    pr_auc = plot_pr_curve(testing_labels, predictions, plot_names, count_plots, regularizer_type)
-                    
-                    count_plots += 1
-                    
-                    with open(results_file_path, 'a') as results_file:
-                        results_file.write(f"**Test loss:** {round(test_loss, 3)}\n")
-                        results_file.write(f"**Test accuracy:** {round(test_accuracy, 3)} - {round(test_accuracy * 100, 2)}%\n")
-                        results_file.write(f"**ROC-AUC:** {round(roc_auc, 3)}\n")
-                        results_file.write(f"**PR-AUC:** {round(pr_auc, 3)}\n\n")
-                        
-                    print(f"Results: Test_Loss={round(test_loss, 3)}, Test_Accuracy={round(test_accuracy, 3)}, ROC-AUC={round(roc_auc, 3)}, PR-AUC={round(pr_auc, 3)}")
-                    
-                    
+                print(f"Results: Test_Loss={round(test_loss, 3)}, Test_Accuracy={round(test_accuracy, 3)}, ROC-AUC={round(roc_auc, 3)}, PR-AUC={round(pr_auc, 3)}")
+                
+                
                 # end main timer
                 end_main_timer = time.time()
                 # calculate main time taken
                 elapsed_main_timer = end_main_timer - start_main_timer
                 # print main time taken
-                print(f"\nTime taken for training and testing with reg_factor={reg_factor}, dropout_rate={dropout_rate}, regularizer={regularizer_type}: {round(elapsed_main_timer / 60, 2)} minutes\n")
+                print(f"\n\nTime taken for training and testing with reg_factor={reg_factor}, dropout_rate={dropout_rate}, regularizer={regularizer_type}: {round(elapsed_main_timer / 60, 2)} minutes\n")
                 
                 # write the time taken to the results file   
                 with open(results_file_path, 'a') as results_file:
                     results_file.write(f"**Time taken for training:** {round(elapsed_training_timer / 60, 2)} minutes\n")
-                    results_file.write(f"**Time taken for training and testing:** {round(elapsed_main_timer / 60, 2)} minutes\n\n")        
-                    results_file.write("=" * 100 + "\n")  
-        
-        
-        # * SAVE MODEL ##############################################################################################################
-        
-        # print("\n ----- <Saving Model> -----")
-        # model.save(f"ResNet_multipleTestFiles(WithReg).keras")
-        # print("----- <Model Saved Successfully> -----\n")
-        
-        
-        # * CLEAN UP RESOURCES ######################################################################################################
+                    results_file.write(f"**Time taken for training and testing:** {round(elapsed_main_timer / 60, 2)} minutes\n\n")          
+                    results_file.write("=" * 100 + "\n")
+    
+    
+                # * SAVE MODEL ---
             
             
-            # Explicitly delete objects
+                print("----- <Saving Model> -----")
+                # ensure the directory exists
+                os.makedirs(save_dir, exist_ok=True)
+                # construct the full file path
+                model_path = os.path.join(save_dir, f"ResNet_{split_used}(WithReg-{regularizer_type})-{dataset_name}_{count_models}.keras")
+                
+                model.save(model_path)
+                print("----- <Model Saved Successfully> -----\n\n")
+            
+            
+                count_models += 1
+            
+            
+            # * CLEAN UP RESOURCES ---
+                
+            
+            # delete objects
             del model, history
             del encoded_training_data, training_labels
             del encoded_testing_data, testing_labels, predictions
             del roc_auc, pr_auc
 
-            # Force garbage collection
+            # force garbage collection
             gc.collect()
 
-            # Reset TensorFlow graph
+            # reset TensorFlow graph
             tf.keras.backend.clear_session()
             tf.compat.v1.reset_default_graph()
-        
-
-        print(f"\nResults saved to {results_file_path}. Graphs saved as '<plot_type>_{plot_names}_MultiTest(<#>_<regularizer_type>).png'.\n")
 
 
-# * EXECUTION #############################################################################################################
+    print(f"\nResults saved to {results_file_path}. Graphs saved as '<plot_type>_<dataset_name>_{split_used}(WithReg-<regularizer_type>)_<#>.png'")
 
 
 # call main function

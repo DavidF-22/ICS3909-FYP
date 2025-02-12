@@ -1,7 +1,6 @@
 # imports
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 from tensorflow.keras.layers import Dense, LSTM, Bidirectional
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
@@ -80,7 +79,7 @@ print(f"Test labels shape: {y_test.shape}\n")
 # Define the model architecture
 model = Sequential()
 # Add a Bidirectional LSTM layer
-model.add(Bidirectional(LSTM(units=lstm_units, input_shape=(max_sequence_length, 1))))
+model.add(Bidirectional(LSTM(units=lstm_units, return_sequences=False, input_shape=(max_sequence_length, 1))))
 # Add a Dense hidden layer
 model.add(Dense(units=512, activation='relu'))
 # Add a Dense output layer for binary classification (single neuron for binary output)
