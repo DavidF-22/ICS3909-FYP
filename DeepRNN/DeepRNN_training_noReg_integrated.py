@@ -44,48 +44,51 @@ split_used = '80-10-10'
 results_file_path = 'autoTrain_modelResults.txt'
 
 # define the directory where you want to save the model
-save_dir = "SavedModels/BiLSTM"
+save_dir = "SavedModels/DeepRNN"
 
 dropout_rates = [0.05, 0.09, 0.13, 0.17, 0.21, 0.25]
 
 
-# * BUILDING BIDIRECTIONAL LSTM ---
+# * BUILDING DEEP RECURRENT NEURAL NETWORK ---
 
 
-# function to build the BiLSTM model with Attention layer
-def BiLSTM(input_shape, dropout_rate, learning_rate):
+# function to build the DeepRNN model with Attention layer
+def DeepRNN(input_shape, dropout_rate, learning_rate):
     # clear any previous models
     tf.keras.backend.clear_session()
     
-    # define input layer with given input shape
+    # define input layer
     input_layer = layers.Input(shape=input_shape)
     
     # Trainable weights for nucleotide pairs
     pair_embeddings = layers.Embedding(input_dim=16 + 1, output_dim=1)(input_layer)
     pair_embeddings = layers.Reshape((25,50))(pair_embeddings)
 
-    # first BiLSTM layer (128 units) for bidirectional sequence processing
-    bilstm1 = layers.Bidirectional(layers.LSTM(units=128, return_sequences=True))(pair_embeddings)
-    dropout1 = layers.Dropout(dropout_rate)(bilstm1)
+    # first RNN layer
+    rnn1 = layers.SimpleRNN(units=128, return_sequences=True)(pair_embeddings)
+    dropout1 = layers.Dropout(dropout_rate)(rnn1)
 
-    # second BiLSTM layer (64 units) for further feature extraction
-    bilstm2 = layers.Bidirectional(layers.LSTM(units=64, return_sequences=True))(dropout1)
-    dropout2 = layers.Dropout(dropout_rate)(bilstm2)
+    # second RNN layer
+    rnn2 = layers.SimpleRNN(units=128, return_sequences=True)(dropout1)
+    dropout2 = layers.Dropout(dropout_rate)(rnn2)
+    
+    # third RNN layer
+    rnn3 = layers.SimpleRNN(units=64, return_sequences=True)(dropout2)
+    dropout3 = layers.Dropout(dropout_rate)(rnn3)
 
     # attention layer
-    attention = layers.Attention()([dropout2, dropout2])
+    attention = layers.Attention()([dropout3, dropout3])
     
-    # global average pooling layer to reduce sequence dimension by averaging features across time steps
     pooled = layers.GlobalAveragePooling1D()(attention)
 
-    # fully connected dense layer (512 neurons, ReLU) for high-level feature extraction
+    # dense layer - fully connected hidden layer with 512 neurons
     dense = layers.Dense(units=512, activation='relu')(pooled)
-    # batch normalization for stable and faster learning
+    # batch normalization layer for stabilizing and accelerating the learning process
     batch_norm = layers.BatchNormalization()(dense)
-    dropout3 = layers.Dropout(dropout_rate)(batch_norm)
+    dropout4 = layers.Dropout(dropout_rate)(batch_norm)
 
     # output layer for binary classification - 1 neuron (1 or 0)
-    output = layers.Dense(units=1, activation='sigmoid')(dropout3)
+    output = layers.Dense(units=1, activation='sigmoid')(dropout4)
 
     # build model
     model = Model(inputs=input_layer, outputs=output)
@@ -109,7 +112,7 @@ def plot_training(history, plot_names, split, count_models, count_plots):
     plt.plot(history.history['accuracy'], label='Train Accuracy')
     plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
     plt.axis(ymin=0.4, ymax=1)
-    plt.title('BiLSTM - Model Accuracy')
+    plt.title('DeepRNN - Model Accuracy')
     plt.ylabel('Accuracy')
     plt.xlabel('Epochs')
     plt.legend(['Train_Accuracy', 'Validation_Accuracy'])
@@ -120,7 +123,7 @@ def plot_training(history, plot_names, split, count_models, count_plots):
     plt.subplot(1, 2, 2)
     plt.plot(history.history['loss'], label='Train Loss')
     plt.plot(history.history['val_loss'], label='Validation Loss')
-    plt.title('BiLSTM - Model Loss')
+    plt.title('DeepRNN - Model Loss')
     plt.ylabel('Loss')
     plt.xlabel('Epochs')
     plt.legend(['Train_Loss', 'Validation_Loss'])
@@ -138,7 +141,7 @@ def plot_roc_curve(testing_labels, predictions, roc_auc, plot_names, split, coun
     plt.plot([0, 1], [0, 1], 'k--', label="Random Guess")
     plt.xlabel("False Positive Rate")
     plt.ylabel("True Positive Rate")
-    plt.title("BiLSTM - Receiver Operating Characteristic (ROC) Curve")
+    plt.title("DeepRNN - Receiver Operating Characteristic (ROC) Curve")
     plt.legend(loc="lower right")
     plt.grid(alpha=0.3)
 
@@ -154,7 +157,7 @@ def plot_pr_curve(testing_labels, predictions, plot_names, split, count_models, 
     plt.plot(recall, precision, label=f"Precision-Recall Curve (AUC = {pr_auc:.4f})", linewidth=2)
     plt.xlabel("Recall")
     plt.ylabel("Precision")
-    plt.title("BiLSTM - Precision-Recall Curve")
+    plt.title("DeepRNN - Precision-Recall Curve")
     plt.legend(loc="lower left")
     plt.grid(alpha=0.3)
 
@@ -241,18 +244,18 @@ def main():
             # reset plot count
             count_plots = 1
             
-            print(f"Training BiLSTM with {os.path.basename(training_file_path)}, dropout_rate={dropout_rate}\n")
+            print(f"Training DeepRNN with {os.path.basename(training_file_path)}, dropout_rate={dropout_rate}\n")
             
             with open(results_file_path, 'a') as results_file:
-                results_file.write(f"Training BiLSTM with {os.path.basename(training_file_path)}, dropout_rate={dropout_rate}\n")
+                results_file.write(f"Training DeepRNN with {os.path.basename(training_file_path)}, dropout_rate={dropout_rate}\n")
                 results_file.write("=" * 100 + "\n\n")
 
             # start training timer
             start_training_timer = time.time()
             
             
-            # build BiLSTM model
-            model = BiLSTM(input_shape, dropout_rate, learning_rate)
+            # build DeepRNN model
+            model = DeepRNN(input_shape, dropout_rate, learning_rate)
             
             print(f"Expected input shape for model: {model.input_shape}")
             print(f"Encoded training data shape: {encoded_training_data.shape}\n")
@@ -343,7 +346,7 @@ def main():
             # ensure the directory exists
             os.makedirs(save_dir, exist_ok=True)
             # construct the full file path
-            model_path = os.path.join(save_dir, f"BiLSTM_{split_used}(NoReg)-{dataset_name}_{count_models}.keras")
+            model_path = os.path.join(save_dir, f"DeepRNN_{split_used}(NoReg)-{dataset_name}_{count_models}.keras")
             
             model.save(model_path)
             print("----- <Model Saved Successfully> -----\n")

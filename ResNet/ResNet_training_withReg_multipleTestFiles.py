@@ -165,6 +165,9 @@ class ResBlock(layers.Layer):
     
 # define the ResNet model
 def build_resnet(input_shape, reg_factor, dropout_rate, regularizer_type):
+    # clear any previous models
+    tf.keras.backend.clear_session()
+    
     """
     Builds a simple ResNet model using custom residual blocks.
     """
@@ -408,7 +411,22 @@ def main():
                         results_file.write(f"**PR-AUC:** {round(pr_auc, 3)}\n\n")
                         
                     print(f"Results: Test_Loss={round(test_loss, 3)}, Test_Accuracy={round(test_accuracy, 3)}, ROC-AUC={round(roc_auc, 3)}, PR-AUC={round(pr_auc, 3)}\n")
-                    
+                
+                
+                # * SAVE MODEL ---
+                
+                
+                print("\n----- <Saving Model> -----")
+                # ensure the directory exists
+                os.makedirs(save_dir, exist_ok=True)
+                # construct the full file path
+                model_path = os.path.join(save_dir, f"ResNet_multipleTestFiles(WithReg-{regularizer_type})-{dataset_name}_{count_models}.keras")
+                
+                model.save(model_path)
+                print("----- <Model Saved Successfully> -----\n\n")
+
+                count_models += 1
+                
                     
                 # end main timer
                 end_main_timer = time.time()
@@ -422,20 +440,7 @@ def main():
                     results_file.write(f"**Time taken for training:** {round(elapsed_training_timer / 60, 2)} minutes\n")
                     results_file.write(f"**Time taken for training and testing:** {round(elapsed_main_timer / 60, 2)} minutes\n\n")        
                     results_file.write("=" * 100 + "\n")  
-        
-        
-                # * SAVE MODEL ---
                 
-                print("\n----- <Saving Model> -----")
-                # ensure the directory exists
-                os.makedirs(save_dir, exist_ok=True)
-                # construct the full file path
-                model_path = os.path.join(save_dir, f"ResNet_multipleTestFiles(WithReg-{regularizer_type})-{dataset_name}_{count_models}.keras")
-                
-                model.save(model_path)
-                print("----- <Model Saved Successfully> -----\n\n")
-
-                count_models += 1
                 
             # * CLEAN UP RESOURCES ---
             

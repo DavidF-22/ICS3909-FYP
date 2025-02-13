@@ -142,6 +142,9 @@ class ResBlock(layers.Layer):
     
 # define the ResNet model
 def build_resnet(input_shape, dropout_rate):
+    # clear any previous models
+    tf.keras.backend.clear_session()
+    
     """
     Builds a simple ResNet model using custom residual blocks.
     """
@@ -366,20 +369,6 @@ def main():
             print(f"Results: Test_Loss={round(test_loss, 3)}, Test_Accuracy={round(test_accuracy, 3)}, ROC-AUC={round(roc_auc, 3)}, PR-AUC={round(pr_auc, 3)}")
             
             
-            # end main timer
-            end_main_timer = time.time()
-            # calculate main time taken
-            elapsed_main_timer = end_main_timer - start_main_timer
-            # print main time taken
-            print(f"\nTime taken for training and testing: {round(elapsed_main_timer / 60, 2)} minutes")
-
-            # write the time taken to the results file   
-            with open(results_file_path, 'a') as results_file:
-                results_file.write(f"**Time taken for training:** {round(elapsed_training_timer / 60, 2)} minutes\n")
-                results_file.write(f"**Time taken for training and testing:** {round(elapsed_main_timer / 60, 2)} minutes\n\n")
-                results_file.write("=" * 100 + "\n")
-                
-                            
             # * SAVE MODEL ---
             
             
@@ -394,6 +383,20 @@ def main():
             
             
             count_models += 1
+            
+            
+            # end main timer
+            end_main_timer = time.time()
+            # calculate main time taken
+            elapsed_main_timer = end_main_timer - start_main_timer
+            # print main time taken
+            print(f"Time taken for training and testing: {round(elapsed_main_timer / 60, 2)} minutes\n\n")
+
+            # write the time taken to the results file   
+            with open(results_file_path, 'a') as results_file:
+                results_file.write(f"**Time taken for training:** {round(elapsed_training_timer / 60, 2)} minutes\n")
+                results_file.write(f"**Time taken for training and testing:** {round(elapsed_main_timer / 60, 2)} minutes\n\n")
+                results_file.write("=" * 100 + "\n")
         
         
         # * CLEAN UP RESOURCES ---

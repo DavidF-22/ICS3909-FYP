@@ -9,12 +9,12 @@ import numpy as np
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
-from tensorflow.keras.layers import Input, Bidirectional, LSTM, Dense, Dropout, Attention, GlobalAveragePooling1D, BatchNormalization
+import tensorflow.keras.layers as layers
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import Model
 from sklearn.metrics import roc_auc_score, roc_curve, precision_recall_curve, auc
-from encoders.sequence_encoder import get_label_dict, get_encoded_matrix
-# from code.machine_learning.encode.sequence_encoder import get_label_dict, get_encoded_matrix
+from encoders.sequence_encoder_16ntPairs import get_label_dict, get_encoded_matrix
+# from code.machine_learning.encode.sequence_encoder_16ntPairs import get_label_dict, get_encoded_matrix
 
 
 # clean up resources to avoid OOM
@@ -59,31 +59,38 @@ testing_file_paths = [
 
 # function to build the BiLSTM model with Attention layer
 def BiLSTM(input_shape, dropout_rate, learning_rate):
+    # clear any previous models
+    tf.keras.backend.clear_session()
+    
     # define input layer with given input shape
-    input_layer = Input(shape=input_shape)
+    input_layer = layers.Input(shape=input_shape)
+    
+    # Trainable weights for nucleotide pairs
+    pair_embeddings = layers.Embedding(input_dim=16 + 1, output_dim=1)(input_layer)
+    pair_embeddings = layers.Reshape((25,50))(pair_embeddings)
 
     # first BiLSTM layer (128 units) for bidirectional sequence processing
-    bilstm1 = Bidirectional(LSTM(units=128, return_sequences=True))(input_layer)
-    dropout1 = Dropout(dropout_rate)(bilstm1)
+    bilstm1 = layers.Bidirectional(layers.LSTM(units=128, return_sequences=True))(pair_embeddings)
+    dropout1 = layers.Dropout(dropout_rate)(bilstm1)
 
     # second BiLSTM layer (64 units) for further feature extraction
-    bilstm2 = Bidirectional(LSTM(units=64, return_sequences=True))(dropout1)
-    dropout2 = Dropout(dropout_rate)(bilstm2)
+    bilstm2 = layers.Bidirectional(layers.LSTM(units=64, return_sequences=True))(dropout1)
+    dropout2 = layers.Dropout(dropout_rate)(bilstm2)
 
     # attention layer
-    attention = Attention()([dropout2, dropout2])
+    attention = layers.Attention()([dropout2, dropout2])
     
     # global average pooling layer to reduce sequence dimension by averaging features across time steps
-    pooled = GlobalAveragePooling1D()(attention)
+    pooled = layers.GlobalAveragePooling1D()(attention)
 
     # fully connected dense layer (512 neurons, ReLU) for high-level feature extraction
-    dense = Dense(units=512, activation='relu')(pooled)
+    dense = layers.Dense(units=512, activation='relu')(pooled)
     # batch normalization for stable and faster learning
-    batch_norm = BatchNormalization()(dense)
-    dropout3 = Dropout(dropout_rate)(batch_norm)
+    batch_norm = layers.BatchNormalization()(dense)
+    dropout3 = layers.Dropout(dropout_rate)(batch_norm)
 
     # output layer for binary classification - 1 neuron (1 or 0)
-    output = Dense(units=1, activation='sigmoid')(dropout3)
+    output = layers.Dense(units=1, activation='sigmoid')(dropout3)
 
     # build model
     model = Model(inputs=input_layer, outputs=output)
@@ -100,7 +107,7 @@ def BiLSTM(input_shape, dropout_rate, learning_rate):
 # * PLOTTING ---
 
 
-def plot_training(history, plot_names, split, count_models, count_plots):
+def plot_training(history, plot_names, count_models, count_plots):
     # plotting training and validation accuracy and loss
     plt.figure(figsize=(12, 6))
     plt.subplot(1, 2, 1)
@@ -125,10 +132,10 @@ def plot_training(history, plot_names, split, count_models, count_plots):
     plt.tight_layout()
     plt.grid()
 
-    plt.savefig(f'training_{plot_names}_{split}(NoReg)_{count_models}.{count_plots}.png')
+    plt.savefig(f'training_{plot_names}_MultiTest(NoReg)_{count_models}.{count_plots}.png')
     plt.close('all')
 
-def plot_roc_curve(testing_labels, predictions, roc_auc, plot_names, split, count_models, count_plots):
+def plot_roc_curve(testing_labels, predictions, roc_auc, plot_names, count_models, count_plots):
     # plot ROC-AUC curve
     fpr, tpr, thresholds = roc_curve(testing_labels, predictions)
     plt.figure(figsize=(8, 6))
@@ -140,10 +147,10 @@ def plot_roc_curve(testing_labels, predictions, roc_auc, plot_names, split, coun
     plt.legend(loc="lower right")
     plt.grid(alpha=0.3)
 
-    plt.savefig(f'ROC_{plot_names}_{split}(NoReg)_{count_models}.{count_plots}.png')
+    plt.savefig(f'ROC_{plot_names}_MultiTest(NoReg)_{count_models}.{count_plots}.png')
     plt.close('all')
 
-def plot_pr_curve(testing_labels, predictions, plot_names, split, count_models, count_plots):
+def plot_pr_curve(testing_labels, predictions, plot_names, count_models, count_plots):
     precision, recall, thresholds = precision_recall_curve(testing_labels, predictions)
     pr_auc = auc(recall, precision)  # compute the AUC for Precision-Recall Curve
             
@@ -156,7 +163,7 @@ def plot_pr_curve(testing_labels, predictions, plot_names, split, count_models, 
     plt.legend(loc="lower left")
     plt.grid(alpha=0.3)
 
-    plt.savefig(f'PR_{plot_names}_{split}(NoReg)_{count_models}.{count_plots}.png')
+    plt.savefig(f'PR_{plot_names}_MultiTest(NoReg)_{count_models}.{count_plots}.png')
     plt.close('all')
     
     return pr_auc
@@ -292,7 +299,7 @@ def main():
                 print("----- <Encoding Testing Data> -----")
                 
                 # preprocess labels to avoid repeated DataFrame filtering
-                label_dict_testing = get_label_dict(df_test, column_name)
+                label_dict_testing = get_label_dict(df_test, 'miRNA')
 
 
                 # initialize lists to store encoded matrices and labels
@@ -302,7 +309,7 @@ def main():
                 # encode training data
                 for _, row in df_test.iterrows():
                     target_sequence = row['gene']
-                    mirna_sequence = row[column_name]
+                    mirna_sequence = row['miRNA']
                     
                     encoded_matrix, label = get_encoded_matrix(label_dict_testing, target_sequence, mirna_sequence)
                     
@@ -340,20 +347,6 @@ def main():
 
                 print(f"Results: Test_Loss={round(test_loss, 3)}, Test_Accuracy={round(test_accuracy, 3)}, ROC-AUC={round(roc_auc, 3)}, PR-AUC={round(pr_auc, 3)}")
 
-
-            # end main timer
-            end_main_timer = time.time()
-            # calculate main time taken
-            elapsed_main_timer = end_main_timer - start_main_timer
-            # print main time taken
-            print(f"\nTime taken for training and testing: {round(elapsed_main_timer / 60, 2)} minutes")
-
-            # write the time taken to the results file   
-            with open(results_file_path, 'a') as results_file:
-                results_file.write(f"**Time taken for training:** {round(elapsed_training_timer / 60, 2)} minutes\n")
-                results_file.write(f"**Time taken for training and testing:** {round(elapsed_main_timer / 60, 2)} minutes\n\n")
-                results_file.write("=" * 100 + "\n")
-                
             
             # * SAVE MODEL ---
         
@@ -368,6 +361,20 @@ def main():
             print("----- <Model Saved Successfully> -----\n")
             
             count_models += 1
+
+
+            # end main timer
+            end_main_timer = time.time()
+            # calculate main time taken
+            elapsed_main_timer = end_main_timer - start_main_timer
+            # print main time taken
+            print(f"Time taken for training and testing: {round(elapsed_main_timer / 60, 2)} minutes\n\n")
+
+            # write the time taken to the results file   
+            with open(results_file_path, 'a') as results_file:
+                results_file.write(f"**Time taken for training:** {round(elapsed_training_timer / 60, 2)} minutes\n")
+                results_file.write(f"**Time taken for training and testing:** {round(elapsed_main_timer / 60, 2)} minutes\n\n")
+                results_file.write("=" * 100 + "\n")
         
         
         # * CLEAN UP RESOURCES ---

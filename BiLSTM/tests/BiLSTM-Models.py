@@ -1,6 +1,7 @@
-from tensorflow.keras.layers import Input, Bidirectional, LSTM, Dense, Dropout, Attention, GlobalMaxPooling1D, BatchNormalization
+from tensorflow.keras.layers import Input, Bidirectional, LSTM, Dense, Dropout, Attention, GlobalAveragePooling1D, BatchNormalization
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.models import Model, Sequential
+from tensorflow.keras.models import Model
+
 
 # function to build the BiLSTM model with Attention layer
 def BiLSTM(input_shape, dropout_rate, learning_rate):
@@ -42,6 +43,7 @@ def BiLSTM(input_shape, dropout_rate, learning_rate):
 
 
 # * ---
+
 
 def BiLSTM(input_shape, dropout_rate, learning_rate, regularizer):
     # define input layer

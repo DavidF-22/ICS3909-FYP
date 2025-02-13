@@ -9,14 +9,14 @@ import numpy as np
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
-from tensorflow.keras.layers import Input, Bidirectional, LSTM, Dense, Dropout, Attention, GlobalAveragePooling1D, BatchNormalization
+import tensorflow.keras.layers as layers
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.models import Model
 from tensorflow.keras.regularizers import L1, L2, L1L2
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score, roc_curve, precision_recall_curve, auc
-from encoders.sequence_encoder import get_label_dict, get_encoded_matrix
-# from code.machine_learning.encode.sequence_encoder import get_label_dict, get_encoded_matrix
+from encoders.sequence_encoder_16ntPairs import get_label_dict, get_encoded_matrix
+# from code.machine_learning.encode.sequence_encoder_16ntPairs import get_label_dict, get_encoded_matrix
 
 
 # clean up resources to avoid OOM
@@ -65,31 +65,44 @@ regularizers = {
 
 # function to build the BiLSTM model with Attention layer
 def BiLSTM(input_shape, dropout_rate, learning_rate, regularizer):
+    # clear any previous models
+    tf.keras.backend.clear_session()
+    
     # define input layer with given input shape
-    input_layer = Input(shape=input_shape)
+    input_layer = layers.Input(shape=input_shape)
+    
+    # trainable weights for nucleotide pairs
+    pair_embeddings = layers.Embedding(input_dim=16 + 1, output_dim=1)(input_layer)
+    pair_embeddings = layers.Reshape((25,50))(pair_embeddings)
 
     # first BiLSTM layer (128 units) for bidirectional sequence processing with regularization  
-    bilstm1 = Bidirectional(LSTM(units=128, return_sequences=True, kernel_regularizer=regularizer, recurrent_regularizer=regularizer))(input_layer)
-    dropout1 = Dropout(dropout_rate)(bilstm1)
+    bilstm1 = layers.Bidirectional(layers.LSTM(units=128, 
+                                               return_sequences=True, 
+                                               kernel_regularizer=regularizer, 
+                                               recurrent_regularizer=regularizer))(pair_embeddings)
+    dropout1 = layers.Dropout(dropout_rate)(bilstm1)
 
     # second BiLSTM layer (64 units) for further feature extraction with regularization
-    bilstm2 = Bidirectional(LSTM(units=64, return_sequences=True, kernel_regularizer=regularizer, recurrent_regularizer=regularizer))(dropout1)
-    dropout2 = Dropout(dropout_rate)(bilstm2)
+    bilstm2 = layers.Bidirectional(layers.LSTM(units=64, 
+                                               return_sequences=True, 
+                                               kernel_regularizer=regularizer, 
+                                               recurrent_regularizer=regularizer))(dropout1)
+    dropout2 = layers.Dropout(dropout_rate)(bilstm2)
 
     # attention layer 
-    attention = Attention()([dropout2, dropout2])
+    attention = layers.Attention()([dropout2, dropout2])
     
     # global average pooling layer to reduce sequence dimension by averaging features across time steps
-    pooled = GlobalAveragePooling1D()(attention)
+    pooled = layers.GlobalAveragePooling1D()(attention)
 
     # fully connected dense layer (512 neurons, ReLU) for high-level feature extraction with regularization
-    dense = Dense(units=512, activation='relu', kernel_regularizer=regularizer)(pooled)
+    dense = layers.Dense(units=512, activation='relu', kernel_regularizer=regularizer)(pooled)
     # batch normalization for stable and faster learning
-    batch_norm = BatchNormalization()(dense)
-    dropout3 = Dropout(dropout_rate)(batch_norm)
+    batch_norm = layers.BatchNormalization()(dense)
+    dropout3 = layers.Dropout(dropout_rate)(batch_norm)
 
     # output layer for binary classification - 1 neuron (1 or 0)
-    output = Dense(units=1, activation='sigmoid')(dropout3)
+    output = layers.Dense(units=1, activation='sigmoid')(dropout3)
 
     # build model
     model = Model(inputs=input_layer, outputs=output)
@@ -300,7 +313,7 @@ def main():
                 print("----- <Encoding Testing Data> -----")
                 
                 # preprocess labels to avoid repeated DataFrame filtering
-                label_dict_testing = get_label_dict(testing_data, column_name)
+                label_dict_testing = get_label_dict(testing_data, 'miRNA')
 
 
                 # initialize lists to store encoded matrices and labels
@@ -310,7 +323,7 @@ def main():
                 # encode training data
                 for _, row in testing_data.iterrows():
                     target_sequence = row['gene']
-                    mirna_sequence = row[column_name]
+                    mirna_sequence = row['miRNA']
                     
                     encoded_matrix, label = get_encoded_matrix(label_dict_testing, target_sequence, mirna_sequence)
                     
@@ -356,7 +369,7 @@ def main():
                 # Ensure the directory exists
                 os.makedirs(save_dir, exist_ok=True)
                 # Construct the full file path
-                model_path = os.path.join(save_dir, f"BiLSTM_{split_used}(NoReg)-{dataset_name}_{count_models}.keras")
+                model_path = os.path.join(save_dir, f"BiLSTM_{split_used}(WithReg-{regularizer_type})-{dataset_name}_{count_models}.keras")
                 
                 model.save(model_path)
                 print("----- <Model Saved Successfully> -----\n")
@@ -364,18 +377,18 @@ def main():
                 count_models += 1
                 
                 
-            # end main timer
-            end_main_timer = time.time()
-            # calculate main time taken
-            elapsed_main_timer = end_main_timer - start_main_timer
-            # print main time taken
-            print(f"\nTime taken for training and testing: {round(elapsed_main_timer / 60, 2)} minutes")
+                # end main timer
+                end_main_timer = time.time()
+                # calculate main time taken
+                elapsed_main_timer = end_main_timer - start_main_timer
+                # print main time taken
+                print(f"Time taken for training and testing: {round(elapsed_main_timer / 60, 2)} minutes\n\n")
 
-            # write the time taken to the results file   
-            with open(results_file_path, 'a') as results_file:
-                results_file.write(f"**Time taken for training:** {round(elapsed_training_timer / 60, 2)} minutes\n")
-                results_file.write(f"**Time taken for training and testing:** {round(elapsed_main_timer / 60, 2)} minutes\n\n")
-                results_file.write("=" * 100 + "\n")
+                # write the time taken to the results file   
+                with open(results_file_path, 'a') as results_file:
+                    results_file.write(f"**Time taken for training:** {round(elapsed_training_timer / 60, 2)} minutes\n")
+                    results_file.write(f"**Time taken for training and testing:** {round(elapsed_main_timer / 60, 2)} minutes\n\n")
+                    results_file.write("=" * 100 + "\n")
                     
             
             # * CLEAN UP RESOURCES ---
