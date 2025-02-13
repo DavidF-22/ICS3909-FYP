@@ -1,4 +1,4 @@
-# miRBind2: miRNA Target Site Prediction - David Farrugia FYP (Final Year Project) Year3 Sem1 (2024/2025)
+# miRBind2: miRNA Target Site Prediction
 
 ## Project Overview
 miRBind is a deep learning-based project focused on predicting microRNA (miRNA) target site binding. The project explores different neural network architectures to enhance the accuracy of miRNA-mRNA interaction predictions. This work is part of ongoing research in bioinformatics, specifically in the area of post-transcriptional gene regulation.
