@@ -52,7 +52,7 @@ echo ""
 # training_datasets.npy, training_labels.npy are required 
 # (-plots and -lr [learning rate] are optional)
 
-TRAINING_DATASET_PATH="datasets/training"
+TRAINING_DATASET_PATH="ResNet/datasets/training"
 
 # ensure training directory exist
 if [ ! -d "$TRAINING_DATASET_PATH" ]; then
