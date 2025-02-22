@@ -176,7 +176,7 @@ def plot_training(history, dataset_name, regularizer_type, save_dir, count_model
     plt.tight_layout()
     plt.grid()
 
-    plt.savefig(os.path.join(save_dir, f'ResNetTraining_{dataset_name}_MultiTest_{regularizer_type}_{count_models}.{count_plots}.png'))
+    plt.savefig(os.path.join(save_dir, f'ResNet_{dataset_name}_MultiTest_{regularizer_type}_{count_models}.{count_plots}.png'))
     plt.close('all')
 
 # * HANDELING MEMMAP ---   
