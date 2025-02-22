@@ -4,7 +4,6 @@ import gc
 import argparse
 import numpy as np
 import pandas as pd
-from natsort import natsorted
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras import layers
