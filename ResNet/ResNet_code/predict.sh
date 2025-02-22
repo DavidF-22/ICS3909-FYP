@@ -78,6 +78,7 @@ fi
 # print confirmation
 PREDICTIONS_SCRIPT_BASENAME=$(basename "$PREDICTIONS_SCRIPT")
 print_success "Found $PREDICTIONS_SCRIPT_BASENAME"
+print_success "Selected regularization type: $REG_TYPE"
 print_success "Found testing datasets"
 print_success "Found trained models"
 print_success "Running predictions..."

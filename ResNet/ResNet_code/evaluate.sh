@@ -13,9 +13,9 @@ print_success() {
 
 
 
-# check if the script is run with an argument
-if [ "$#" -ne 1 ]; then
-    print_error "Invalid number of arguments! - Usage: $0 [NoReg | WithReg]"
+# check if the script is run with two arguments
+if [ "$#" -ne 2 ]; then
+    print_error "Invalid number of arguments! - Usage: $0 [NoReg | WithReg] [plot_true | plot_false]"
     exit 1
 fi
 
@@ -26,6 +26,16 @@ elif [ "$1" == "WithReg" ]; then
     REG_TYPE="WithReg"
 else
     print_error "Invalid argument: '$1' is not recognized. Allowed values: NoReg | WithReg"
+    exit 1
+fi
+
+# set the plot bool based on user input
+if [ "$2" == "plot_true" ]; then
+    PLOT_BOOL="true"
+elif [ "$2" == "plot_false" ]; then
+    PLOT_BOOL="false"
+else
+    print_error "Invalid argument: '$2' is not recognized. Allowed values: plot_true | plot_false"
     exit 1
 fi
 
@@ -95,6 +105,8 @@ fi
 # print confirmation
 EVALUATIONS_SCRIPT_BASENAME=$(basename "$EVALUATIONS_SCRIPT")
 print_success "Found $EVALUATIONS_SCRIPT_BASENAME"
+print_success "Selected regularization type: $REG_TYPE"
+print_success "Selected plot bool: $PLOT_BOOL"
 print_success "Found testing datasets"
 print_success "Found testing labels"
 print_success "Found predictions"
@@ -103,7 +115,7 @@ print_success "Running evaluations..."
 echo ""
 
 # run the evaluations script
-python3 "$EVALUATIONS_SCRIPT" --encoded_data "$TEST_DATA_FILES" --encoded_labels "$TEST_LABEL_FILES" --predictions "$PREDICTION_FILES" --trained_models "$MODEL_FILES" --regularization "$REG_TYPE" --plot_plots "true"
+python3 "$EVALUATIONS_SCRIPT" --encoded_data "$TEST_DATA_FILES" --encoded_labels "$TEST_LABEL_FILES" --predictions "$PREDICTION_FILES" --trained_models "$MODEL_FILES" --regularization "$REG_TYPE" --plot_plots "$PLOT_BOOL"
 
 # output success message
 echo ""

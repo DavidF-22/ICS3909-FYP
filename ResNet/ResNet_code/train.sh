@@ -14,9 +14,9 @@ print_success() {
 
 
 
-# check if the script is run with an argument
-if [ "$#" -ne 1 ]; then
-    print_error "Invalid number of arguments! - Usage: $0 [NoReg | WithReg]"
+# check if the script is run with two arguments
+if [ "$#" -ne 2 ]; then
+    print_error "Invalid number of arguments! - Usage: $0 [NoReg | WithReg] [plot_true | plot_false]"
     exit 1
 fi
 
@@ -30,8 +30,15 @@ else
     exit 1
 fi
 
-# output selected training script
-print_success "Selected training script: $TRAIN_SCRIPT"
+# set the plot bool based on user input
+if [ "$2" == "plot_true" ]; then
+    PLOT_BOOL="true"
+elif [ "$2" == "plot_false" ]; then
+    PLOT_BOOL="false"
+else
+    print_error "Invalid argument: '$2' is not recognized. Allowed values: plot_true | plot_false"
+    exit 1
+fi
 
 # ensure script exists before attempting to execute it
 SCRIPT_PATH="ResNet_code/machine_learning/train/$TRAIN_SCRIPT"
@@ -43,6 +50,7 @@ fi
 # output message if script is found and skip line
 SCRIPT_BASENAME=$(basename "$SCRIPT_PATH")
 print_success "Found Training Script: $TRAINING_SCRIPT_BASENAME"
+print_success "Selected plot bool: $PLOT_BOOL"
 print_success "Proceeding with execution..."
 echo ""
 
@@ -84,7 +92,7 @@ print_success "Training model..."
 echo ""
 
 # run the training script
-python3 "$SCRIPT_PATH" --encoded_data "$TRAIN_DATA_FILES" --encoded_labels "$TRAIN_LABEL_FILES" --plot_plots "true" --learning_rate 0.001
+python3 "$SCRIPT_PATH" --encoded_data "$TRAIN_DATA_FILES" --encoded_labels "$TRAIN_LABEL_FILES" --plot_plots "$PLOT_BOOL" --learning_rate 0.001
 
 # print success message
 print_success "Training completed successfully"
