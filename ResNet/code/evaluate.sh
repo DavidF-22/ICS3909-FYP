@@ -56,7 +56,7 @@ fi
 # (-plots is optional)
 SAVED_MODELS_PATH="Saves/ResNet_Models"
 SAVED_PREDICTIONS_PATH="Saves/ResNet_Predictions"
-EVALUATIONS_SCRIPT="code/machine_learning/evaluate/model_evaluate.py"
+EVALUATIONS_SCRIPT="ResNet/code/machine_learning/evaluate/model_evaluate.py"
 
 # ensure predictions dir exists
 if [ ! -d "$SAVED_PREDICTIONS_PATH" ]; then

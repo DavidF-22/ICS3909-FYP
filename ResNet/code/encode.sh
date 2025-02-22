@@ -18,7 +18,7 @@ print_success() {
 
 TRAINING_DATASETS_PATH="ResNet/data/training"
 TESTING_DATASETS_PATH="ResNet/data/testing"
-ENCODER_SCRIPT="code/machine_learning/encode/binding_2D_matrix_encoder.py"
+ENCODER_SCRIPT="ResNet/code/machine_learning/encode/binding_2D_matrix_encoder.py"
 
 # ensure training and testing directories exist
 if [ ! -d "$TRAINING_DATASETS_PATH" ]; then

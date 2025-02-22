@@ -41,7 +41,7 @@ else
 fi
 
 # ensure script exists before attempting to execute it
-SCRIPT_PATH="code/machine_learning/train/$TRAIN_SCRIPT"
+SCRIPT_PATH="ResNet/code/machine_learning/train/$TRAIN_SCRIPT"
 if [ ! -f "$SCRIPT_PATH" ]; then
     print_error "Training script '$SCRIPT_PATH' not found!"
     exit 1

@@ -44,7 +44,7 @@ fi
 # * predictions
 # models and testing_datasets.npy are needed
 SAVED_MODELS_PATH="Saves/ResNet_Models"
-PREDICTIONS_SCRIPT="code/machine_learning/evaluate/model_predictions.py"
+PREDICTIONS_SCRIPT="ResNet/code/machine_learning/evaluate/model_predictions.py"
 
 # ensure model dir exists
 if [ ! -d "$SAVED_MODELS_PATH" ]; then
