@@ -41,7 +41,7 @@ fi
 
 
 
-TESTING_DATASET_PATH="ResNet/datasets/testing"
+TESTING_DATASET_PATH="datasets/testing"
 
 # ensure testing directory exist
 if [ ! -d "$TESTING_DATASET_PATH" ]; then

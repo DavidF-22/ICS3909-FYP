@@ -228,7 +228,7 @@ def main():
     parser = argparse.ArgumentParser(description="Train a ResNet model for miRNA-mRNA target site classification")
     parser.add_argument("-e_data", "--encoded_data", required=True, default=None, type=str, help="Path to the encoded training dataset (.npy file)")
     parser.add_argument("-e_labels", "--encoded_labels", required=True, default=None, type=str, help="Path to the encoded training labels (.npy file)")
-    parser.add_argument("-plots", "--plot_plots", required=False, default="false", type=str, help="Wheather to save the training plots or not")
+    parser.add_argument("-plots", "--plot_plots", required=True, default=None, type=str, help="Wheather to save the training plots or not (true/false)")
     parser.add_argument("-lr", "--learning_rate", required=False, default=0.001, type=float, help="Learning rate for training")
     args = parser.parse_args()
     

@@ -60,7 +60,7 @@ echo ""
 # training_datasets.npy, training_labels.npy are required 
 # (-plots and -lr [learning rate] are optional)
 
-TRAINING_DATASET_PATH="ResNet/datasets/training"
+TRAINING_DATASET_PATH="datasets/training"
 
 # ensure training directory exist
 if [ ! -d "$TRAINING_DATASET_PATH" ]; then
@@ -92,7 +92,7 @@ print_success "Training model..."
 echo ""
 
 # run the training script
-python3 "$SCRIPT_PATH" --encoded_data "$TRAIN_DATA_FILES" --encoded_labels "$TRAIN_LABEL_FILES" --plot_plots "$PLOT_BOOL" --learning_rate 0.001
+python3 "$SCRIPT_PATH" --encoded_data "$TRAIN_DATA_FILES" --encoded_labels "$TRAIN_LABEL_FILES" --plot_plots "$PLOT_BOOL"
 
 # print success message
 print_success "Training completed successfully"

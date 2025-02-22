@@ -283,8 +283,8 @@ def main():
     parser.add_argument("-e_labels", "--encoded_labels", required=True, default=None, type=str, help="Lists of path to the encoded testing labels (.npy files)")
     parser.add_argument("-preds", "--predictions", required=True, default=None, type=str, help="List of paths to prediction files (.tsv files)")
     parser.add_argument("-models", "--trained_models", required=True, default=None, type=str, help="List of paths to the trained models (.keras or equivalent)")
-    parser.add_argument("-reg", "--regularization", required=True, default="NoReg", type=str, help="NoReg or WithReg using in naming the .tsv file")
-    parser.add_argument("-plots", "--plot_plots", required=False, default="false", type=str, help="Wheather to save the training plots or not")    
+    parser.add_argument("-reg", "--regularization", required=True, default=None, type=str, help="NoReg or WithReg using in naming the .tsv file")
+    parser.add_argument("-plots", "--plot_plots", required=True, default=None, type=str, help="Wheather to save the training plots or not (true/false)")    
     args = parser.parse_args()
     
     # split model and dataset paths into lists and sort them
