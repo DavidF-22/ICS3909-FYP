@@ -74,4 +74,14 @@ This configuration produces **6 models**.
 Each model is named with a number at the end (1 through 6) reflecting the specific combination of regularization factor and dropout rate. In addition, a "plot number" is assigned alongside the model number. These numbers are used in the text file output by the programs to map the trained models to their corresponding plots, and subsequently, to the results.
 
 ---
+
+**To add later:**
+- Mention Datasets and where they can be found (https://zenodo.org/records/14501607)
+
+- State how they can be unpacked from .tsv.gz to .tsv since this repo works with .tsv files
+   - Windows can extract GZ files using the "tar" command in Command Prompt or by installing the 7-Zip program.
+   - On a Mac, just double-click the file to extract it, or use the command gunzip filename. gz in a Terminal window.
+   - Linux, use the gzip -d filename.
+
+---
 This project is part of ongoing research in miRNA target site prediction and aims to improve the understanding of miRNA-mRNA interactions using deep learning techniques.
