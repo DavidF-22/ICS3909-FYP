@@ -7,8 +7,8 @@ miRBind is a deep learning-based project focused on predicting microRNA (miRNA) 
 ## Models Implemented
 The repository contains the following models for miRNA target site classification:
 - **Residual Network (ResNet)**
-- **Bidirectional Long Short-Term Memory (BiLSTM) with Attention**
-- **Long Short-Term Memory (LSTM)**
+- **Bidirectional Long Short-Term Memory (BiLSTM)**
+- **Deep Recurrent Neural Network (DeepRNN)**
 
 ## Cloning the Repository
 To clone this repository, use the following command:
