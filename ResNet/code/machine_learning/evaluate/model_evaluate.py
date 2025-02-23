@@ -357,8 +357,8 @@ def main():
                 results_file.write(f"Dataset: {test_data_name}\n")
                 results_file.write(f"**Test loss:** {test_loss:.3f}\n")
                 results_file.write(f"**Test accuracy:** {test_accuracy:.3f} - {(test_accuracy * 100):.3f}%\n")
-                results_file.write(f"**ROC-AUC:** {roc_auc:.3f}\n")
-                results_file.write(f"**PR-AUC:** {pr_auc:.3f}\n\n")
+                results_file.write(f"**PR-AUC:** {pr_auc:.3f}\n")
+                results_file.write(f"**ROC-AUC:** {roc_auc:.3f}\n\n")
                 results_file.write("=" * 100 + "\n")
             
             # clear the memory-mapped data
