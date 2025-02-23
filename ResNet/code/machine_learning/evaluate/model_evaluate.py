@@ -10,7 +10,6 @@ from sklearn.model_selection import StratifiedKFold
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 from tensorflow.keras import layers
-from tensorflow.keras.regularizers import L1, L2, L1L2
 from tensorflow.keras.utils import register_keras_serializable
 
 # * MODEL ARCHITECTURE ---
@@ -144,7 +143,7 @@ def plot_roc_crossval(labels, predictions, save_dir, model_name, count_plots, n_
 
     # Plot mean ROC curve
     plt.plot(mean_fpr, mean_tpr, color="blue",
-             label=r"Mean ROC (AUC = {:.3f} $\pm$ {:.3f})".format(mean_auc, std_auc),
+             label = fr"Mean ROC (AUC = {mean_auc:.3f} $\pm$ {std_auc:.3f})",
              linewidth=2)
 
     # Plot chance level
@@ -203,7 +202,7 @@ def plot_pr_crossval(labels, predictions, save_dir, model_name, count_plots, n_s
 
     # Plot mean PR curve
     plt.plot(mean_recall, mean_precision, color="blue",
-             label=r"Mean PR (AUC = {:.3f} $\pm$ {:.3f})".format(mean_auc, std_auc),
+             label = fr"Mean ROC (AUC = {mean_auc:.3f} $\pm$ {std_auc:.3f})",
              linewidth=2)
 
     # Shade standard deviation
