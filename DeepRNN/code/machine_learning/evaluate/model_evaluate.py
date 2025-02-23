@@ -9,11 +9,7 @@ from sklearn.metrics import roc_auc_score, roc_curve, precision_recall_curve, au
 from sklearn.model_selection import StratifiedKFold
 import tensorflow as tf
 from tensorflow.keras.models import load_model
-
-# * MODEL ARCHITECTURE ---
-
-
-    
+  
 # * PLOTTING ---
 
 # plot ROC curve for cross-validated model evaluation

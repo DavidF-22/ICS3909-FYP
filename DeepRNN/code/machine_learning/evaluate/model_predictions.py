@@ -7,10 +7,6 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 
-# * MODEL ARCHITECTURE ---
-
-
-
 # * LOADING DATA ---
 
 def load_data(data_file):
