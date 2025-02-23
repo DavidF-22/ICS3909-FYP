@@ -177,7 +177,7 @@ def main():
     prediction_files = sorted(args.predictions.split(','), reverse=True)
     
     # initialise save predictions path
-    results_file_path = f'Saves/BiLSTM_evaluation_{args.regularization}_results.txt'
+    results_file_path = f'Saves/DeepRNN_evaluation_{args.regularization}_results.txt'
     
     if args.plot_plots == 'true':
         # create directory for saving plots

@@ -55,7 +55,7 @@ def main():
         raise ValueError(f"!!! Invalid regularization argument: {args.regularization} - Please use either 'NoReg' or 'WithReg' !!!")
 
     # initialise save predictions path
-    save_dir = "Saves/BiLSTM_Predictions"
+    save_dir = "Saves/DeepRNN_Predictions"
     make_files(os.path.split(save_dir)[0], [os.path.split(save_dir)[1]])
     
     # iterate over all test data files and make predictions
