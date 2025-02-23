@@ -43,7 +43,7 @@ fi
 
 # * predictions
 # models and testing_datasets.npy are needed
-SAVED_MODELS_PATH="Saves/BiLSTM_Models"
+SAVED_MODELS_PATH="Saves/DeepRNN_Models"
 PREDICTIONS_SCRIPT="DeepRNN/code/machine_learning/evaluate/model_predictions.py"
 
 # ensure model dir exists

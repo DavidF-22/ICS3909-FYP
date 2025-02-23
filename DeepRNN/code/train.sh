@@ -22,9 +22,9 @@ fi
 
 # set the training script based on user input
 if [ "$1" == "NoReg" ]; then
-    TRAIN_SCRIPT="BiLSTM_NoReg.py"
+    TRAIN_SCRIPT="DeepRNN_NoReg.py"
 elif [ "$1" == "WithReg" ]; then
-    TRAIN_SCRIPT="BiLSTM_WithReg.py"
+    TRAIN_SCRIPT="DeepRNN_WithReg.py"
 else
     print_error "Invalid argument: '$1' is not recognized. Allowed values: NoReg | WithReg"
     exit 1

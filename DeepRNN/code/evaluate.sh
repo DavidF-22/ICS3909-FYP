@@ -54,8 +54,8 @@ fi
 # * evaluate
 # testing_datasets.npy, testing_labels.npy, -preds, -models are required
 # (-plots is optional)
-SAVED_MODELS_PATH="Saves/BiLSTM_Models"
-SAVED_PREDICTIONS_PATH="Saves/BiLSTM_Predictions"
+SAVED_MODELS_PATH="Saves/DeepRNN_Models"
+SAVED_PREDICTIONS_PATH="Saves/DeepRNN_Predictions"
 EVALUATIONS_SCRIPT="DeepRNN/code/machine_learning/evaluate/model_evaluate.py"
 
 # ensure predictions dir exists
