@@ -16,8 +16,8 @@ print_success() {
 
 # * encode
 
-TRAINING_DATASETS_PATH="DeepRNN/data/training"
-TESTING_DATASETS_PATH="DeepRNN/data/testing"
+TRAINING_DATASETS_PATH="DeepRNN/data/DeepRNN_data/training"
+TESTING_DATASETS_PATH="DeepRNN/data/DeepRNN_data/testing"
 ENCODER_SCRIPT="DeepRNN/code/machine_learning/encode/sequence_encoder_16ntPairs.py"
 
 # ensure training and testing directories exist

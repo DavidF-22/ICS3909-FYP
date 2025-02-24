@@ -16,8 +16,8 @@ print_success() {
 
 # * encode
 
-TRAINING_DATASETS_PATH="ResNet/data/training"
-TESTING_DATASETS_PATH="ResNet/data/testing"
+TRAINING_DATASETS_PATH="ResNet/data/ResNet_data/training"
+TESTING_DATASETS_PATH="ResNet/data/ResNet_data/testing"
 ENCODER_SCRIPT="ResNet/code/machine_learning/encode/binding_2D_matrix_encoder.py"
 
 # ensure training and testing directories exist

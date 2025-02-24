@@ -41,7 +41,7 @@ fi
 
 
 
-TESTING_DATASET_PATH="DeepRNN/data/testing"
+TESTING_DATASET_PATH="DeepRNN/data/DeepRNN_data/testing"
 
 # ensure testing directory exist
 if [ ! -d "$TESTING_DATASET_PATH" ]; then

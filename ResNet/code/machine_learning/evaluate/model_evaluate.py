@@ -31,42 +31,40 @@ class ResBlock(layers.Layer):
         - filters: Number of filters for the Conv2D layers
         - kernel_size: Size of the convolution kernel
         """
-        # calling the parent class constructor
+        # calling the parent class constructor        
         super(ResBlock, self).__init__()
-
+        
         # parameters for the residual block
         self.downsample = downsample
         self.filters = filters
         self.kernel_size = kernel_size
-
-        # initialize first convolution layer, with stride 1 or 2 depending on downsampling
-        self.conv1 = layers.Conv2D(kernel_size=self.kernel_size,
-                                   strides=(1 if not self.downsample else 2),
-                                   filters=self.filters,
-                                   padding="same")
-        self.activation1 = layers.ReLU()  # activation function after first convolution
-        self.batch_norm1 = layers.BatchNormalization()  # batch normalization after first convolution
         
-        # initialize second convolution layer with stride 1 (no downsampling here)
-        self.conv2 = layers.Conv2D(kernel_size=self.kernel_size,
-                                   strides=1,
-                                   filters=self.filters,
+        # first convolution: Conv -> BN -> ReLU
+        self.conv1 = layers.Conv2D(filters=self.filters, 
+                                   kernel_size=self.kernel_size, 
+                                   strides=(1 if not self.downsample else 2), 
                                    padding="same")
-
-        # third convolution if downsampling is needed to match input dimensions
+        self.bn1 = layers.BatchNormalization()
+        self.act1 = layers.Activation("relu")
+        
+        # second convolution: Conv -> BN (activation applied after adding shortcut)
+        self.conv2 = layers.Conv2D(filters=self.filters, 
+                                   kernel_size=self.kernel_size, 
+                                   strides=1, 
+                                   padding="same")
+        self.bn2 = layers.BatchNormalization()
+        
+        # if downsampling, adjust the shortcut branch with its own convolution and BN.
         if self.downsample:
-          self.conv3 = layers.Conv2D(kernel_size=1,
-                                     strides=2,
-                                     filters=self.filters,
-                                     padding="same")
+            self.shortcut_conv = layers.Conv2D(filters=self.filters, 
+                                               kernel_size=1, 
+                                               strides=2, 
+                                               padding="same")
+            self.shortcut_bn = layers.BatchNormalization()
+        else:
+            self.shortcut_conv = None
 
-        self.activation2 = layers.ReLU()  # activation after second convolution
-        self.batch_norm2 = layers.BatchNormalization()  # batch normalization after second convolution
-        
-    def build(self, input_shape):
-        super(ResBlock, self).build(input_shape)
-
-    def call(self, inputs):
+    def call(self, inputs, training=False):
         """
         Forward pass for the residual block. Applies the convolutions, activation, and adds the skip connection.
 
@@ -76,24 +74,22 @@ class ResBlock(layers.Layer):
         Returns:
         - Tensor after applying the residual block transformation
         """
-        # first convolution, activation, and batch normalization
+        # main branch: conv -> BN -> ReLU -> conv -> BN
         x = self.conv1(inputs)
-        x = self.activation1(x)
-        x = self.batch_norm1(x)
+        x = self.bn1(x, training=training)
+        x = self.act1(x)
         
-        # second convolution (no downsampling here)
         x = self.conv2(x)
-
-        # adjust input dimensions if downsampling
-        if self.downsample:
-            inputs = self.conv3(inputs)
-
-        # add the input (skip connection) to the output of the convolutions
-        x = layers.Add()([inputs, x])
-
-        # final activation and batch normalization
-        x = self.activation2(x)
-        x = self.batch_norm2(x)
+        x = self.bn2(x, training=training)
+        
+        # shortcut branch
+        shortcut = inputs
+        if self.shortcut_conv is not None:
+            shortcut = self.shortcut_conv(shortcut)
+            shortcut = self.shortcut_bn(shortcut, training=training)
+        
+        # add the shortcut and apply final activation
+        x = layers.add([x, shortcut])
 
         return x
 
@@ -102,6 +98,9 @@ class ResBlock(layers.Layer):
         Returns the configuration of the residual block (required for saving and loading the model).
         """
         return {'filters': self.filters, 'downsample': self.downsample, 'kernel_size': self.kernel_size}
+    
+    def build(self, input_shape):
+        super(ResBlock, self).build(input_shape)
     
 # * PLOTTING ---
 

@@ -16,8 +16,8 @@ print_success() {
 
 # * encode
 
-TRAINING_DATASETS_PATH="BiLSTM/data/training"
-TESTING_DATASETS_PATH="BiLSTM/data/testing"
+TRAINING_DATASETS_PATH="BiLSTM/data/BiLSTM_data/training"
+TESTING_DATASETS_PATH="BiLSTM/data/BiLSTM_data/testing"
 ENCODER_SCRIPT="BiLSTM/code/machine_learning/encode/sequence_encoder_16ntPairs.py"
 
 # ensure training and testing directories exist

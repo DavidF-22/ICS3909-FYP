@@ -31,7 +31,7 @@ fi
 
 
 
-TESTING_DATASET_PATH="BiLSTM/data/testing"
+TESTING_DATASET_PATH="BiLSTM/data/BiLSTM_data/testing"
 
 # ensure testing directory exist
 if [ ! -d "$TESTING_DATASET_PATH" ]; then

@@ -41,7 +41,7 @@ else
 fi
 
 # ensure script exists before attempting to execute it
-SCRIPT_PATH="BiLSTM/code/machine_learning/train/$TRAIN_SCRIPT"
+SCRIPT_PATH="BiLSTM/code/machine_learning/train/BiLSTM/$TRAIN_SCRIPT"
 if [ ! -f "$SCRIPT_PATH" ]; then
     print_error "Training script '$SCRIPT_PATH' not found!"
     exit 1
@@ -60,7 +60,7 @@ echo ""
 # training_datasets.npy, training_labels.npy are required 
 # (-plots and -lr [learning rate] are optional)
 
-TRAINING_DATASET_PATH="BiLSTM/data/training"
+TRAINING_DATASET_PATH="BiLSTM/data/BiLSTM_data/training"
 
 # ensure training directory exist
 if [ ! -d "$TRAINING_DATASET_PATH" ]; then
