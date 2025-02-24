@@ -110,7 +110,15 @@ class ResBlock(layers.Layer):
         """
         Returns the configuration of the residual block (required for saving and loading the model).
         """
-        return {'filters': self.filters, 'downsample': self.downsample, 'kernel_size': self.kernel_size}
+        reg_type = "NoReg"
+        
+        return {
+            'filters': self.filters,
+            'downsample': self.downsample,
+            'kernel_size': self.kernel_size,
+            'reg_factor': self.reg_factor,
+            'regularizer_type': reg_type
+        }
     
 # define the ResNet model
 def build_resnet(input_shape, dropout_rate, learning_rate):    
