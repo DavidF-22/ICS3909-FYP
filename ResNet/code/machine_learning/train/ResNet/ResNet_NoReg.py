@@ -116,7 +116,6 @@ class ResBlock(layers.Layer):
             'filters': self.filters,
             'downsample': self.downsample,
             'kernel_size': self.kernel_size,
-            'reg_factor': self.reg_factor,
             'regularizer_type': reg_type
         }
     
