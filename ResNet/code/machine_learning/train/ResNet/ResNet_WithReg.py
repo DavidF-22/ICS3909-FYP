@@ -156,6 +156,7 @@ def build_resnet(input_shape, reg_factor, dropout_rate, regularizer_type, learni
     # add ResBlocks
     x = ResBlock(reg_factor, regularizer_type, filters=64, downsample=False)(x)
     x = ResBlock(reg_factor, regularizer_type, filters=128, downsample=True)(x)
+    #x = ResBlock(reg_factor, regularizer_type, filters=256, downsample=True)(x)
     
     # use Global Average Pooling to reduce feature map dimensions
     x = layers.GlobalAveragePooling2D()(x)

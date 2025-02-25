@@ -19,7 +19,7 @@ class ResBlock(layers.Layer):
     The block either maintains the input dimensions or downsamples based on the specified parameters.
     """
 
-    def __init__(self, downsample=False, filters=16, kernel_size=3):
+    def __init__(self, downsample=False, filters=16, kernel_size=3, regularizer_type="NoReg",):
         """
         Initializes the residual block with optional downsampling.
         
@@ -35,6 +35,7 @@ class ResBlock(layers.Layer):
         self.downsample = downsample
         self.filters = filters
         self.kernel_size = kernel_size
+        self.regularizer_type = regularizer_type
         
         # first convolution: Conv -> BN -> ReLU
         self.conv1 = layers.Conv2D(filters=self.filters, 
@@ -94,7 +95,14 @@ class ResBlock(layers.Layer):
         """
         Returns the configuration of the residual block (required for saving and loading the model).
         """
-        return {'filters': self.filters, 'downsample': self.downsample, 'kernel_size': self.kernel_size}
+        reg_type = "NoReg"
+        
+        return {
+            'filters': self.filters,
+            'downsample': self.downsample,
+            'kernel_size': self.kernel_size,
+            'regularizer_type': reg_type
+        }
     
     def build(self, input_shape):
         super(ResBlock, self).build(input_shape)
