@@ -22,7 +22,7 @@ class ResBlock(layers.Layer):
     The block either maintains the input dimensions or downsamples based on the specified parameters.
     """
 
-    def __init__(self, downsample=False, filters=16, kernel_size=3, regularizer_type="NoReg"):
+    def __init__(self, regularizer_type, downsample=False, filters=16, kernel_size=3):
         """
         Initializes the residual block with optional downsampling.
         

@@ -58,15 +58,13 @@ class ResBlock(layers.Layer):
         self.downsample = downsample
         self.filters = filters
         self.kernel_size = kernel_size
-        self.regularizer_type = regularizer_type
-        self.reg_factor = reg_factor
         
         # first convolution: Conv -> BN -> ReLU
         self.conv1 = layers.Conv2D(filters=self.filters, 
                                    kernel_size=self.kernel_size, 
                                    strides=(1 if not self.downsample else 2), 
                                    padding="same",
-                                   kernel_regularizer=self.regularizer_type(self.reg_factor))
+                                   kernel_regularizer=regularizer_type(reg_factor))
         self.bn1 = layers.BatchNormalization()
         self.act1 = layers.Activation("relu")
         
@@ -75,7 +73,7 @@ class ResBlock(layers.Layer):
                                    kernel_size=self.kernel_size, 
                                    strides=1, 
                                    padding="same",
-                                   kernel_regularizer=self.regularizer_type(self.reg_factor))
+                                   kernel_regularizer=regularizer_type(reg_factor))
         self.bn2 = layers.BatchNormalization()
         
         # if downsampling, adjust the shortcut branch with its own convolution and BN.
@@ -84,7 +82,7 @@ class ResBlock(layers.Layer):
                                                kernel_size=1, 
                                                strides=2, 
                                                padding="same",
-                                               kernel_regularizer=self.regularizer_type(self.reg_factor))
+                                               kernel_regularizer=regularizer_type(reg_factor))
             self.shortcut_bn = layers.BatchNormalization()
         else:
             self.shortcut_conv = None
@@ -156,7 +154,15 @@ def build_resnet(input_shape, reg_factor, dropout_rate, regularizer_type, learni
     # add ResBlocks
     x = ResBlock(reg_factor, regularizer_type, filters=64, downsample=False)(x)
     x = ResBlock(reg_factor, regularizer_type, filters=128, downsample=True)(x)
-    #x = ResBlock(reg_factor, regularizer_type, filters=256, downsample=True)(x)
+    x = ResBlock(reg_factor, regularizer_type, filters=256, downsample=True)(x)
+    
+    '''
+    Total params: 1,360,001 (5.19 MB)
+    Trainable params: 1,357,313 (5.18 MB)
+    Non-trainable params: 2,688 (10.50 KB)
+    
+    x = ResBlock(reg_factor, regularizer_type, filters=256, downsample=True)(x)
+    '''
     
     # use Global Average Pooling to reduce feature map dimensions
     x = layers.GlobalAveragePooling2D()(x)
