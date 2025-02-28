@@ -64,7 +64,7 @@ echo ""
 # encode training datasets
 for dataset in $TRAINING_DATA_FILES; do
     # get basename of dataset
-    dataset_basename=$(basename "$dataset" "_paper.tsv")
+    dataset_basename=$(basename "$dataset" ".tsv")
 
     python3 $ENCODER_SCRIPT --i_file $dataset --o_prefix $TRAINING_DATASETS_PATH/$dataset_basename --column_name "miRNA"
     if [ $? -ne 0 ]; then
@@ -76,7 +76,7 @@ done
 # encode testing datasets
 for dataset in $TESTING_DATA_FILES; do
     # get basename of dataset
-    dataset_basename=$(basename "$dataset" "_paper.tsv")
+    dataset_basename=$(basename "$dataset" ".tsv")
 
     python3 $ENCODER_SCRIPT --i_file $dataset --o_prefix $TESTING_DATASETS_PATH/$dataset_basename --column_name "miRNA"
     if [ $? -ne 0 ]; then
