@@ -14,6 +14,44 @@ print_success() {
 
 
 
+# function to display usage information
+usage() {
+    echo "Usage: $0 [noncodingRNA | miRNA]"
+    echo ""
+    echo "Arguments:"
+    echo "  [noncodingRNA | miRNA]   : Specify the micro-rna column name. Allowed values: noncodingRNA | miRNA"
+    echo "                           : Note: This was done since datasets where enoucuntered with different column names for miRNA"
+    echo ""
+    echo "Options:"
+    echo "  -h, --help                : Display usage information."
+    exit 1
+}
+
+# display usage if help flag is passed
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    usage
+fi
+
+
+
+# check if the script is run with required argument
+if [ "$#" -ne 1 ]; then
+    print_error "Invalid number of arguments. Use -h or --help for more information."
+    exit 1
+fi
+
+# set the column name based on user input
+if [ "$1" == "noncodingRNA" ]; then
+    MIRNA_COL_NAME="noncodingRNA"
+elif [ "$1" == "miRNA" ]; then
+    MIRNA_COL_NAME="miRNA"
+else
+    print_error "Invalid argument: '$1' is not recognized. Allowed values: noncodingRNA | miRNA"
+    exit 1
+fi
+
+
+
 # * encode
 
 TRAINING_DATASETS_PATH="ResNet/data/ResNet_data/training"
@@ -66,7 +104,7 @@ for dataset in $TRAINING_DATA_FILES; do
     # get basename of dataset
     dataset_basename=$(basename "$dataset" ".tsv")
 
-    python3 $ENCODER_SCRIPT --i_file $dataset --o_prefix $TRAINING_DATASETS_PATH/$dataset_basename --column_name "miRNA"
+    python3 $ENCODER_SCRIPT --i_file $dataset --o_prefix $TRAINING_DATASETS_PATH/$dataset_basename --column_name "$MIRNA_COL_NAME"
     if [ $? -ne 0 ]; then
         print_error "Failed to encode training dataset '$dataset'!"
         exit 1
@@ -78,7 +116,7 @@ for dataset in $TESTING_DATA_FILES; do
     # get basename of dataset
     dataset_basename=$(basename "$dataset" ".tsv")
 
-    python3 $ENCODER_SCRIPT --i_file $dataset --o_prefix $TESTING_DATASETS_PATH/$dataset_basename --column_name "miRNA"
+    python3 $ENCODER_SCRIPT --i_file $dataset --o_prefix $TESTING_DATASETS_PATH/$dataset_basename --column_name "$MIRNA_COL_NAME"
     if [ $? -ne 0 ]; then
         print_error "Failed to encode testing dataset '$dataset'!"
         exit 1

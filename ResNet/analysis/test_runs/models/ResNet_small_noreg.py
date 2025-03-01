@@ -2,13 +2,13 @@ from tensorflow.keras import layers, models
 from tensorflow.keras.utils import register_keras_serializable
 from tensorflow.keras.optimizers import Adam
 
-'''
-Total params: 1,360,001 (5.19 MB)
-Trainable params: 1,357,313 (5.18 MB)
-Non-trainable params: 2,688 (10.50 KB)
+''' 
+Total params: 373,121 (1.42 MB)
+Trainable params: 371,969 (1.42 MB)
+Non-trainable params: 1,152 (4.50 KB)
 '''
 
-# * --- No Reg
+# * --- NoReg
 
 # defining a custom Keras layer which inturn implements a residual block
 @register_keras_serializable()
@@ -93,12 +93,7 @@ class ResBlock(layers.Layer):
         """
         Returns the configuration of the residual block (required for saving and loading the model).
         """
-        
-        return {
-            'filters': self.filters,
-            'downsample': self.downsample,
-            'kernel_size': self.kernel_size,
-        }
+        return {'filters': self.filters, 'downsample': self.downsample, 'kernel_size': self.kernel_size}
     
 # define the ResNet model
 def build_resnet(input_shape, dropout_rate, learning_rate):    
@@ -115,15 +110,7 @@ def build_resnet(input_shape, dropout_rate, learning_rate):
     # add ResBlocks
     x = ResBlock(filters=64, downsample=False)(x)
     x = ResBlock(filters=128, downsample=True)(x)
-    x = ResBlock(filters=256, downsample=True)(x)
-    
-    '''
-    Total params: 1,360,001 (5.19 MB)
-    Trainable params: 1,357,313 (5.18 MB)
-    Non-trainable params: 2,688 (10.50 KB)
-    
-    x = ResBlock(reg_factor, regularizer_type, filters=256, downsample=True)(x)
-    '''
+    #x = ResBlock(filters=256, downsample=True)(x)
     
     # use Global Average Pooling to reduce feature map dimensions
     x = layers.GlobalAveragePooling2D()(x)
@@ -144,7 +131,7 @@ def build_resnet(input_shape, dropout_rate, learning_rate):
     
     return model
 
-build_resnet((50, 20, 1), 0.05, learning_rate=0.001)
+build_resnet((50, 20, 1), 0.05, learning_rate=0.001)#
 
 # Model: "functional"
 # ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┓
@@ -163,17 +150,15 @@ build_resnet((50, 20, 1), 0.05, learning_rate=0.001)
 # ├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
 # │ res_block_1 (ResBlock)               │ (None, 25, 10, 128)         │         231,296 │
 # ├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
-# │ res_block_2 (ResBlock)               │ (None, 13, 5, 256)          │         921,344 │
-# ├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
-# │ global_average_pooling2d             │ (None, 256)                 │               0 │
+# │ global_average_pooling2d             │ (None, 128)                 │               0 │
 # │ (GlobalAveragePooling2D)             │                             │                 │
 # ├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
-# │ dense (Dense)                        │ (None, 512)                 │         131,584 │
+# │ dense (Dense)                        │ (None, 512)                 │          66,048 │
 # ├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
 # │ dropout (Dropout)                    │ (None, 512)                 │               0 │
 # ├──────────────────────────────────────┼─────────────────────────────┼─────────────────┤
 # │ dense_1 (Dense)                      │ (None, 1)                   │             513 │
 # └──────────────────────────────────────┴─────────────────────────────┴─────────────────┘
-#  Total params: 1,360,001 (5.19 MB)
-#  Trainable params: 1,357,313 (5.18 MB)
-#  Non-trainable params: 2,688 (10.50 KB)
+#  Total params: 373,121 (1.42 MB)
+#  Trainable params: 371,969 (1.42 MB)
+#  Non-trainable params: 1,152 (4.50 KB)

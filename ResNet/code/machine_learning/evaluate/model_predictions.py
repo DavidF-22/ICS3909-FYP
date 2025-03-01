@@ -9,11 +9,102 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras import layers
 from tensorflow.keras.utils import register_keras_serializable
 
-# * MODEL ARCHITECTURE ---
+# * MODEL ARCHITECTURES ---
 
-# defining a custom Keras layer which inturn implements a residual block
+# defining a custom Keras layer which inturn implements a residual block for large ResNet
 @register_keras_serializable()
-class ResBlock(layers.Layer):
+class ResBlock_Large(layers.Layer):
+    """
+    Defines a Residual block based on the original ResNet paper.
+    The block either maintains the input dimensions or downsamples based on the specified parameters.
+    """
+
+    def __init__(self, downsample=False, filters=16, kernel_size=3):
+        """
+        Initializes the residual block with optional downsampling.
+        
+        Parameters:
+        - downsample: Boolean, whether to downsample the input (using stride of 2)
+        - filters: Number of filters for the Conv2D layers
+        - kernel_size: Size of the convolution kernel
+        """
+        # calling the parent class constructor
+        super(ResBlock_Large, self).__init__()
+
+        # parameters for the residual block
+        self.downsample = downsample
+        self.filters = filters
+        self.kernel_size = kernel_size
+
+        # initialize first convolution layer, with stride 1 or 2 depending on downsampling
+        self.conv1 = layers.Conv2D(kernel_size=self.kernel_size,
+                                   strides=(1 if not self.downsample else 2),
+                                   filters=self.filters,
+                                   padding="same")
+        self.activation1 = layers.ReLU()  # activation function after first convolution
+        self.batch_norm1 = layers.BatchNormalization()  # batch normalization after first convolution
+        
+        # initialize second convolution layer with stride 1 (no downsampling here)
+        self.conv2 = layers.Conv2D(kernel_size=self.kernel_size,
+                                   strides=1,
+                                   filters=self.filters,
+                                   padding="same")
+
+        # third convolution if downsampling is needed to match input dimensions
+        self.conv3 = None  # Default to None
+        if self.downsample:
+          self.conv3 = layers.Conv2D(kernel_size=1,
+                                     strides=2,
+                                     filters=self.filters,
+                                     padding="same")
+          self.batch_norm3 = layers.BatchNormalization()  # batch normalization after third convolution
+
+        self.activation2 = layers.ReLU()  # activation after second convolution
+        self.batch_norm2 = layers.BatchNormalization()  # batch normalization after second convolution
+
+    def call(self, inputs):
+        """
+        Forward pass for the residual block. Applies the convolutions, activation, and adds the skip connection.
+
+        Parameters:
+        - inputs: Input tensor
+
+        Returns:
+        - Tensor after applying the residual block transformation
+        """
+        # first convolution, activation, and batch normalization
+        x = self.conv1(inputs)
+        x = self.activation1(x)
+        x = self.batch_norm1(x)
+        
+        # second convolution (no downsampling here)
+        x = self.conv2(x)
+
+        # adjust input dimensions if downsampling
+        if self.downsample:
+            inputs = self.conv3(inputs)
+
+        # add the input (skip connection) to the output of the convolutions
+        x = layers.Add()([inputs, x])
+
+        # final activation and batch normalization
+        x = self.activation2(x)
+        x = self.batch_norm2(x)
+
+        return x
+
+    def get_config(self):
+        """
+        Returns the configuration of the residual block (required for saving and loading the model).
+        """
+        return {'filters': self.filters, 'downsample': self.downsample, 'kernel_size': self.kernel_size}
+    
+    def build(self, input_shape):
+        super(ResBlock_Large, self).build(input_shape)
+    
+# defining a custom Keras layer which inturn implements a residual block for small and medium ResNet
+@register_keras_serializable()
+class ResBlock_SmallAndMedium(layers.Layer):
     """
     Defines a Residual block based on the original ResNet paper.
     The block either maintains the input dimensions or downsamples based on the specified parameters.
@@ -29,7 +120,7 @@ class ResBlock(layers.Layer):
         - kernel_size: Size of the convolution kernel
         """
         # calling the parent class constructor        
-        super(ResBlock, self).__init__()
+        super(ResBlock_SmallAndMedium, self).__init__()
         
         # parameters for the residual block
         self.downsample = downsample
@@ -42,7 +133,7 @@ class ResBlock(layers.Layer):
                                    strides=(1 if not self.downsample else 2), 
                                    padding="same")
         self.bn1 = layers.BatchNormalization()
-        self.act1 = layers.Activation("relu")
+        self.act1 = layers.ReLU()
         
         # second convolution: Conv -> BN (activation applied after adding shortcut)
         self.conv2 = layers.Conv2D(filters=self.filters, 
@@ -94,17 +185,12 @@ class ResBlock(layers.Layer):
         """
         Returns the configuration of the residual block (required for saving and loading the model).
         """
-        
-        return {
-            'filters': self.filters,
-            'downsample': self.downsample,
-            'kernel_size': self.kernel_size,
-        }
-    
+        return {'filters': self.filters, 'downsample': self.downsample, 'kernel_size': self.kernel_size}
+
     def build(self, input_shape):
-        super(ResBlock, self).build(input_shape)
+        super(ResBlock_SmallAndMedium, self).build(input_shape)
     
-# * HANDELING MEMMAP ---   
+# * PLOTTING ---
 
 # get the shape of the memory-mapped file (dataset) - helps in loading the data
 def get_memmap_shape(file_path, element_shape, dtype=np.float32):
@@ -157,6 +243,7 @@ def make_files(base_dir, sub_dirs):
 def main():
     # argument parser for dataset path and learning rate
     parser = argparse.ArgumentParser(description="Load trained model to make predictions for miRNA-mRNA target site classification")
+    parser.add_argument("-rn_type", "--ResNet_type", required=True, default=None, type=str, help="Type of ResNet model to train (small [373,121], medium [1,360,001], large [16,691,073])")
     parser.add_argument("-e_data", "--encoded_data", required=True, default=None, type=str, help="List of paths to encoded test datasets (.npy files) used for predictions")
     parser.add_argument("-models", "--trained_models", required=True, default=None, type=str, help="List of paths to the trained models file (.keras or equivalent)")
     parser.add_argument("-reg", "--regularization", required=True, default="NoReg", type=str, help="NoReg or WithReg using in naming the .tsv file")
@@ -173,6 +260,12 @@ def main():
     # initialise save predictions path
     save_dir = "Saves/ResNet_Predictions"
     make_files(os.path.split(save_dir)[0], [os.path.split(save_dir)[1]])
+    
+    # select the ResBlock class based on the ResNet type
+    if args.ResNet_type == 'small' or args.ResNet_type == 'medium':
+        RESBLOCK_CLASS = ResBlock_SmallAndMedium
+    elif args.ResNet_type == 'large':
+        RESBLOCK_CLASS = ResBlock_Large
     
     # iterate over all test data files and make predictions
     for test_data in test_data_files:
@@ -201,9 +294,9 @@ def main():
             # get model name for column header
             model_name = os.path.basename(model_path)
 
-            # load model
+            # load mdel using custom_objects to load the ResBlock class
             print(f"Loading model: {model_path} ...")
-            model = load_model(model_path, custom_objects={"ResBlock": ResBlock})
+            model = load_model(model_path, custom_objects={'ResBlock': RESBLOCK_CLASS})
             
             # get predictions
             predictions = model.predict(encoded_test_data).flatten()
