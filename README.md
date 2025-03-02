@@ -59,29 +59,45 @@ ResNet/code/encode.sh
 When training the models, the programs generate multiple models based on the chosen hyperparameters. There are two scenarios:
 
 1.  **Using both regularization factors and dropout rates:**
-```python
-reg_factors = [0.01, 0.005, 0.005, 0.01, 0.003, 0.002] 
-dropout_rates = [0.05, 0.09, 0.13, 0.17, 0.21, 0.25]
-```
+    ```python
+    reg_factors = [0.01, 0.005, 0.005, 0.01, 0.003, 0.002] 
+    dropout_rates = [0.05, 0.09, 0.13, 0.17, 0.21, 0.25]
+    ```
 This configuration produces 6 models for each regularizer type (L1, L2, and L1L2), for a total of **18 models**.
 
 2. **Using only dropout rates:**
-```python
-dropout_rates = [0.05, 0.09, 0.13, 0.17, 0.21, 0.25]
-```
+    ```python
+    dropout_rates = [0.05, 0.09, 0.13, 0.17, 0.21, 0.25]
+    ```
 This configuration produces **6 models**.
 
 Each model is named with a number at the end (1 through 6) reflecting the specific combination of regularization factor and dropout rate. In addition, a "plot number" is assigned alongside the model number. These numbers are used in the text file output by the programs to map the trained models to their corresponding plots, and subsequently, to the results.
 
----
+## Datasets and Data Folder Placeholders
+Within the repository, several data folders include placeholder `README.md` files. These placeholders indicate, by file name, which datasets need to be placed in each folder. 
 
-**To add later:**
-- Mention Datasets and where they can be found (https://zenodo.org/records/14501607)
+**Note:** The files `AGO2_eCLIP_Manakov2022_leftout.tsv` and `AGO2_eCLIP_Manakov2022_full_dataset.tsv` should not be used.
 
-- State how they can be unpacked from .tsv.gz to .tsv since this repo works with .tsv files
-   - Windows can extract GZ files using the "tar" command in Command Prompt or by installing the 7-Zip program.
-   - On a Mac, just double-click the file to extract it, or use the command gunzip filename. gz in a Terminal window.
-   - Linux, use the gzip -d filename.
+### Dataset Sources
+All required datasets can be obtained from the following link: [miRBench_Datasets - Zendo](https://zenodo.org/records/14501607)
+
+### Unpacking .tsv.gz Files
+This repository works with `.tsv` files. If your datasets are provided as `.tsv.gz` files, they will need to be unpacked:
+
+- **Windows:**
+You can extract `.gz` files using the `tar` command in Command Prompt or by installing the [7-Zip](https://www.7-zip.org/) program.
+
+- **Mac**
+Simply double-click the file to extract it, or use the command in a Terminal window:
+  ```bash
+  gunzip filename.gz
+  ```
+
+- **Linux**
+Use the following command to decompress the file:
+  ```bash
+  gzip -d `__filename__`.gz
+  ```
 
 ---
 This project is part of ongoing research in miRNA target site prediction and aims to improve the understanding of miRNA-mRNA interactions using deep learning techniques.
