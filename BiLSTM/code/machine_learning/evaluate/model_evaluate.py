@@ -195,7 +195,7 @@ def main():
         model_name = os.path.basename(model_path)
         
         # load mdel
-        print(f"\n----- <Loading model: {model_name}> -----\n")
+        print(f"\n----- <Loading model: {model_name}> -----")
         model = load_model(model_path)
 
         

@@ -181,7 +181,7 @@ def main():
     
     if args.plot_plots == 'true':
         # create directory for saving plots
-        save_dir = "Saves/BiLSTM_Evaluation"
+        save_dir = "Saves/DeepRNN_Evaluation"
         make_files(os.path.split(save_dir)[0], [os.path.split(save_dir)[1]])
         
     # clear the results file
@@ -194,7 +194,7 @@ def main():
         model_name = os.path.basename(model_path)
         
         # load mdel
-        print(f"\n----- <Loading model: {model_name}> -----\n")
+        print(f"\n----- <Loading model: {model_name}> -----")
         model = load_model(model_path)
 
         

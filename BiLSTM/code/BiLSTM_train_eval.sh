@@ -24,7 +24,7 @@ usage() {
     echo ""
     echo "Options:"
     echo "  -h, --help                : Display usage information."
-    exit 1
+    exit 0
 }
 
 # display usage if help flag is passed

@@ -24,7 +24,7 @@ usage() {
     echo ""
     echo "Options:"
     echo "  -h, --help                : Display usage information."
-    exit 1
+    exit 0
 }
 
 # display usage if help flag is passed
@@ -110,6 +110,8 @@ for dataset in $TRAINING_DATA_FILES; do
         exit 1
     fi
 done
+
+echo ""
 
 # encode testing datasets
 for dataset in $TESTING_DATA_FILES; do
