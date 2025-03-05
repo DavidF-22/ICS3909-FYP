@@ -249,7 +249,7 @@ echo ""
 # models and testing_datasets.npy are needed
 
 SAVED_MODELS_PATH="Saves/ResNet_Models"
-PREDICTIONS_SCRIPT="ResNet/code/machine_learning/evaluate/model_predictions.py"
+PREDICTIONS_SCRIPT="ResNet/code/machine_learning/evaluate/model_predict.py"
 
 # ensure model dir exists
 if [ ! -d "$SAVED_MODELS_PATH" ]; then
@@ -342,12 +342,11 @@ print_success "Selected plot bool: $PLOT_BOOL"
 print_success "Found testing datasets"
 print_success "Found testing labels"
 print_success "Found predictions"
-print_success "Found trained models"
 print_success "Running evaluations..."
 echo ""
 
 # run the evaluations script
-python3 "$EVALUATIONS_SCRIPT" --ResNet_type "$RESNET_TYPE" --encoded_data "$TEST_DATA_FILES" --encoded_labels "$TEST_LABEL_FILES" --predictions "$PREDICTION_FILES" --trained_models "$MODEL_FILES" --regularization "$REG_TYPE" --plot_plots "$PLOT_BOOL"
+python3 "$EVALUATIONS_SCRIPT" --ResNet_type "$RESNET_TYPE" --encoded_data "$TEST_DATA_FILES" --encoded_labels "$TEST_LABEL_FILES" --predictions "$PREDICTION_FILES" --regularization "$REG_TYPE" --plot_plots "$PLOT_BOOL"
 
 # output success message
 echo ""

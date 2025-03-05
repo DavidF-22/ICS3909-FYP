@@ -5,10 +5,10 @@ import argparse
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.metrics import roc_auc_score, roc_curve, precision_recall_curve, auc
+from sklearn.metrics import roc_auc_score, roc_curve, precision_recall_curve, auc, accuracy_score
 from sklearn.model_selection import StratifiedKFold
 import tensorflow as tf
-from tensorflow.keras.models import load_model
+from tensorflow.keras.losses import BinaryCrossentropy
 
 # * PLOTTING ---
 
@@ -166,7 +166,6 @@ def main():
     parser.add_argument("-e_data", "--encoded_data", required=True, default=None, type=str, help="List of path to the encoded testing dataset (.npy files)")
     parser.add_argument("-e_labels", "--encoded_labels", required=True, default=None, type=str, help="Lists of path to the encoded testing labels (.npy files)")
     parser.add_argument("-preds", "--predictions", required=True, default=None, type=str, help="List of paths to prediction files (.tsv files)")
-    parser.add_argument("-models", "--trained_models", required=True, default=None, type=str, help="List of paths to the trained models (.keras or equivalent)")
     parser.add_argument("-reg", "--regularization", required=True, default=None, type=str, help="NoReg or WithReg using in naming the .tsv file")
     parser.add_argument("-plots", "--plot_plots", required=True, default=None, type=str, help="Wheather to save the training plots or not (true/false)")    
     args = parser.parse_args()
@@ -174,7 +173,6 @@ def main():
     # split model and dataset paths into lists and sort them
     test_data_files = sorted(args.encoded_data.split(','), reverse=True)
     test_label_files = sorted(args.encoded_labels.split(','), reverse=True)
-    model_files = sorted(args.trained_models.split(','), key=simple_sort_key)
     prediction_files = sorted(args.predictions.split(','), reverse=True)
     
     # initialise save predictions path
@@ -188,45 +186,40 @@ def main():
     # clear the results file
     with open(results_file_path, 'w') as results_file:
         pass
-    
-    # iterate over all model files and load the model
-    for model_path in model_files: 
-        # get model name for easy identification
-        model_name = os.path.basename(model_path)
+            
+    count_plots = 2
         
-        # load mdel
-        print(f"\n----- <Loading model: {model_name}> -----")
-        model = load_model(model_path)
-
+    # iterate over all test data, test label and prediction files
+    for test_data, test_label, prediction in zip(test_data_files, test_label_files, prediction_files):
+        # get test data name for easy identification
+        test_data_name = os.path.basename(test_data)
         
-        with open(results_file_path, 'a') as results_file:
-            results_file.write(f"Evaluating {model_name}\n")
-            results_file.write("=" * 100 + "\n")
-            
-        count_plots = 2
-            
-        # iterate over all test data, test label and prediction files
-        for test_data, test_label, prediction in zip(test_data_files, test_label_files, prediction_files):
-            # get test data name for easy identification
-            test_data_name = os.path.basename(test_data)
-            
-            # load the data and labels
-            print(f"Loading encoded data from: {test_data} ...")
-            test_data, test_labels = load_data(test_data, test_label)
-            
-            # load the predictions
-            predictions_df = pd.read_csv(prediction, sep='\t')
-            if model_name not in predictions_df.columns:
-                print(f"!!! Warning: {model_name} not found in {prediction}. Available columns: {predictions_df.columns} !!!")
-                continue
+        # load the data and labels
+        print(f"Loading encoded data from: {test_data} ...")
+        test_data, test_labels = load_data(test_data, test_label)
+        
+        # load the predictions
+        predictions_df = pd.read_csv(prediction, sep='\t')
+        
+        
+        # iterate over each model present in the prediction file header
+        for model_name in predictions_df.columns:
+            with open(results_file_path, 'a') as results_file:
+                results_file.write(f"Evaluating {model_name}\n")
+                results_file.write("=" * 100 + "\n")
+                
             predictions = predictions_df[model_name].values
             
-            # evaluate the model and plot the ROC and PR curves
-            test_loss, test_accuracy = model.evaluate(test_data, test_labels, verbose=0)
-            roc_auc = roc_auc_score(test_labels, predictions) # compute the AUC for ROC Curve
+            # compute test loss with binary crossentropy
+            test_loss = BinaryCrossentropy(test_labels, predictions).numpy()
+            # compute accuracy
+            pred_labels = (predictions >= 0.5).astype(int)
+            test_accuracy = accuracy_score(test_labels, pred_labels)
             
+            # compute ROC-AUC and PR-AUC
+            roc_auc = roc_auc_score(test_labels, predictions)
             precision, recall, thresholds = precision_recall_curve(test_labels, predictions)
-            pr_auc = auc(recall, precision)  # compute the AUC for Precision-Recall Curve
+            pr_auc = auc(recall, precision)
             
             if args.plot_plots == 'true':
                 print("Plotting ROC and PR curves ...")

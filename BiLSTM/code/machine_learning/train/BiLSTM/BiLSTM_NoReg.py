@@ -6,8 +6,8 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
-from tensorflow.keras import layers, models
-from tensorflow.keras.optimizers import Adam
+
+from BiLSTM_Architectures import BiLSTM
 
 # * PARAMS ---
 
@@ -23,51 +23,6 @@ save_dir = "Saves/BiLSTM_Models"
 dropout_rates = [0.05, 0.09, 0.13, 0.17, 0.21, 0.25]
 
 regularizer_type = "NoReg"
-
-# * BUILDING BiLSTM ---
-
-# function to build the BiLSTM model with Attention layer
-def BiLSTM(input_shape, dropout_rate, learning_rate):    
-    # define input layer with given input shape
-    input_layer = layers.Input(shape=input_shape)
-    
-    # Trainable weights for nucleotide pairs
-    pair_embeddings = layers.Embedding(input_dim=16 + 1, output_dim=1)(input_layer)
-    pair_embeddings = layers.Reshape((25,50))(pair_embeddings)
-
-    # first BiLSTM layer (128 units) for bidirectional sequence processing
-    bilstm1 = layers.Bidirectional(layers.LSTM(units=128, return_sequences=True))(pair_embeddings)
-    dropout1 = layers.Dropout(dropout_rate)(bilstm1)
-
-    # second BiLSTM layer (64 units) for further feature extraction
-    bilstm2 = layers.Bidirectional(layers.LSTM(units=64, return_sequences=True))(dropout1)
-    dropout2 = layers.Dropout(dropout_rate)(bilstm2)
-
-    # attention layer
-    attention = layers.Attention()([dropout2, dropout2])
-    
-    # global average pooling layer to reduce sequence dimension by averaging features across time steps
-    pooled = layers.GlobalAveragePooling1D()(attention)
-
-    # fully connected dense layer (512 neurons, ReLU) for high-level feature extraction
-    dense = layers.Dense(units=512, activation='relu')(pooled)
-    # batch normalization for stable and faster learning
-    batch_norm = layers.BatchNormalization()(dense)
-    dropout3 = layers.Dropout(dropout_rate)(batch_norm)
-
-    # output layer for binary classification - 1 neuron (1 or 0)
-    output = layers.Dense(units=1, activation='sigmoid')(dropout3)
-
-    # build model
-    model = models.Model(inputs=input_layer, outputs=output)
-    # compile model with Adam optimizer and binary crossentropy loss and accuracy metric
-    model.compile(optimizer=Adam(learning_rate=learning_rate), loss='binary_crossentropy',metrics=['accuracy'])
-    # Summary
-    model.summary()
-    
-    print()
-    
-    return model
 
 # * PLOTTING ---
 
@@ -173,7 +128,7 @@ def main():
             start_training_timer = time.time()
             
             # build model
-            model = BiLSTM(input_shape, dropout_rate, learning_rate=args.learning_rate)
+            model = BiLSTM(input_shape, dropout_rate, args.learning_rate)
             
             # train the model
             history = model.fit(encoded_training_data, 

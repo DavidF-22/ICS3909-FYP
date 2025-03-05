@@ -6,8 +6,8 @@ import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 import tensorflow as tf
-from tensorflow.keras import layers, models
-from tensorflow.keras.optimizers import Adam
+
+from DeepRNN_Architectures import DeepRNN
 
 # * PARAMS ---
 
@@ -23,77 +23,6 @@ save_dir = "Saves/DeepRNN_Models"
 dropout_rates = [0.05, 0.09, 0.13, 0.17, 0.21, 0.25]
 
 regularizer_type = "NoReg"
-
-# * BUILDING DeepRNN ---
-
-# function to build the DeepRNN model with Attention layer and regularization
-def DeepRNN(input_shape, dropout_rate, learning_rate):
-    # clear any previous models
-    tf.keras.backend.clear_session()
-    
-    print()
-    
-    # define input layer
-    input_layer = layers.Input(shape=input_shape)
-    print(f"Input layer shape: {input_layer.shape}")
-    
-    # Trainable weights for nucleotide pairs
-    pair_embeddings = layers.Embedding(input_dim=16 + 1, output_dim=1)(input_layer)
-    print(f"pair_embeddings shape before reshaping: {pair_embeddings.shape}")
-    pair_embeddings = layers.Reshape((25,50))(pair_embeddings)
-    print(f"pair_embeddings shape after reshaping: {pair_embeddings.shape}")
-
-    # first RNN layer
-    rnn1 = layers.SimpleRNN(units=128, return_sequences=True)(pair_embeddings)
-    print(f"rnn1 shape: {rnn1.shape}")
-    dropout1 = layers.Dropout(dropout_rate)(rnn1)
-    print(f"dropout1 shape: {dropout1.shape}")
-
-    # second RNN layer
-    rnn2 = layers.SimpleRNN(units=128, return_sequences=True)(dropout1)
-    print(f"rnn2 shape: {rnn2.shape}")
-    dropout2 = layers.Dropout(dropout_rate)(rnn2)
-    print(f"dropout2 shape: {dropout2.shape}")
-    
-    # third RNN layer
-    rnn3 = layers.SimpleRNN(units=64, return_sequences=True)(dropout2)
-    print(f"rnn3 shape: {rnn3.shape}")
-    dropout3 = layers.Dropout(dropout_rate)(rnn3)
-    print(f"dropout3 shape: {dropout3.shape}")
-
-    # attention layer
-    # attention = layers.Attention()([dropout3, dropout3])
-    # print(f"attention shape: {attention.shape}")
-    
-    pooled = layers.GlobalAveragePooling1D()(dropout3)
-    print(f"pooled shape: {pooled.shape}")
-
-    # dense layer - fully connected hidden layer with 512 neurons
-    dense = layers.Dense(units=512, activation='relu')(pooled)
-    
-    # batch normalization layer for stabilizing and accelerating the learning process
-    batch_norm = layers.BatchNormalization()(dense)
-    print(f"batch_norm shape: {batch_norm.shape}")
-    dropout4 = layers.Dropout(dropout_rate)(batch_norm)
-    print(f"dropout4 shape: {dropout4.shape}")
-
-    # output layer for binary classification - 1 neuron (1 or 0)
-    output = layers.Dense(units=1, activation='sigmoid')(dropout4)
-    print(f"output shape: {output.shape}")
-
-    # build model
-    model = models.Model(inputs=input_layer, outputs=output)
-    # compile model with Adam optimizer and binary crossentropy loss and accuracy metric
-    model.compile(optimizer=Adam(learning_rate=learning_rate), loss='binary_crossentropy',metrics=['accuracy'])
-    # Summary
-    
-    print()
-    
-    model.summary()
-    
-    print()
-    
-    return model
 
 # * PLOTTING ---
 
@@ -199,7 +128,7 @@ def main():
             start_training_timer = time.time()
             
             # build model
-            model = DeepRNN(input_shape, dropout_rate, learning_rate=args.learning_rate)
+            model = DeepRNN(input_shape, dropout_rate, args.learning_rate)
             
             # train the model
             history = model.fit(encoded_training_data, 
