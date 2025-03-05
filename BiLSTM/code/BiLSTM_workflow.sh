@@ -19,6 +19,8 @@ usage() {
     echo "Usage: $0 [noreg | withreg] [plot_true | plot_false]"
     echo ""
     echo "Arguments:"
+    echo "  noncodingRNA | miRNA      : Specify the micro-rna column name. Allowed values: noncodingRNA | miRNA"
+    echo "                            : Note: This was done since datasets where enoucuntered with different column names for miRNA"
     echo "  noreg | withreg           : Specify the regularization type."
     echo "  plot_true | plot_false    : Specify whether to plot the results."
     echo ""
@@ -35,32 +37,121 @@ fi
 
 
 # check if the script is run with two arguments
-if [ "$#" -ne 2 ]; then
+if [ "$#" -ne 3 ]; then
     print_error "Invalid number of arguments. Use -h or --help for more information."
     exit 1
 fi
 
+# set the column name based on user input
+if [ "$1" == "noncodingRNA" ]; then
+    MIRNA_COL_NAME="noncodingRNA"
+elif [ "$1" == "miRNA" ]; then
+    MIRNA_COL_NAME="miRNA"
+else
+    print_error "Invalid argument: '$1' is not recognized. Allowed values: noncodingRNA | miRNA"
+    exit 1
+fi
+
 # set the training script based on user input
-if [ "$1" == "noreg" ]; then
+if [ "$2" == "noreg" ]; then
     REG_TYPE="NoReg"
     TRAIN_SCRIPT="BiLSTM_NoReg.py"
-elif [ "$1" == "withreg" ]; then
+elif [ "$2" == "withreg" ]; then
     REG_TYPE="WithReg"
     TRAIN_SCRIPT="BiLSTM_WithReg.py"
 else
-    print_error "Invalid argument: '$1' is not recognized. Allowed values: noreg | withreg"
+    print_error "Invalid argument: '$2' is not recognized. Allowed values: noreg | withreg"
     exit 1
 fi
 
 # set the plot bool based on user input
-if [ "$2" == "plot_true" ]; then
+if [ "$3" == "plot_true" ]; then
     PLOT_BOOL="true"
-elif [ "$2" == "plot_false" ]; then
+elif [ "$3" == "plot_false" ]; then
     PLOT_BOOL="false"
 else
-    print_error "Invalid argument: '$2' is not recognized. Allowed values: plot_true | plot_false"
+    print_error "Invalid argument: '$3' is not recognized. Allowed values: plot_true | plot_false"
     exit 1
 fi
+
+
+
+# * ENCODE ---
+# datasets, prefix, miRNA column_name are required
+
+TRAINING_DATASETS_PATH="BiLSTM/data/BiLSTM_data/training"
+TESTING_DATASETS_PATH="BiLSTM/data/BiLSTM_data/testing"
+ENCODER_SCRIPT="BiLSTM/code/machine_learning/encode/sequence_encoder_16ntPairs.py"
+
+# ensure training and testing directories exist
+if [ ! -d "$TRAINING_DATASETS_PATH" ]; then
+    print_error "Training dataset directory '$TRAINING_DATASETS_PATH' not found!"
+    exit 1
+fi
+
+if [ ! -d "$TESTING_DATASETS_PATH" ]; then
+    print_error "Testing dataset directory '$TESTING_DATASETS_PATH' not found!"
+    exit 1
+fi
+
+# ensure encoder script exists
+if [ ! -f "$ENCODER_SCRIPT" ]; then
+    print_error "Encoder script '$ENCODER_SCRIPT' not found!"
+    exit 1
+fi
+
+# get all .tsv files from training and testing directories
+TRAINING_DATA_FILES=$(find "$TRAINING_DATASETS_PATH" -type f -name "*.tsv")
+TESTING_DATA_FILES=$(find "$TESTING_DATASETS_PATH" -type f -name "*.tsv")
+
+# validate that training datasets were found
+if [ -z "$TRAINING_DATA_FILES" ]; then
+    print_error "No training datasets found in '$TRAINING_DATASETS_PATH'!"
+    exit 1
+fi
+
+# validate that testing datasets were found
+if [ -z "$TESTING_DATA_FILES" ]; then
+    print_error "No testing datasets found in '$TESTING_DATASETS_PATH'!"
+    exit 1
+fi
+
+# print confirmation
+ENCODER_SCRIPT_BASENAME=$(basename "$ENCODER_SCRIPT")
+print_success "Found Encoder Script: $ENCODER_SCRIPT_BASENAME"
+print_success "Found Training Datasets"
+print_success "Found Testing Datasets"
+print_success "Encoding..."
+echo ""
+
+# encode training datasets
+for dataset in $TRAINING_DATA_FILES; do
+    # get basename of dataset
+    dataset_basename=$(basename "$dataset" ".tsv")
+
+    python3 $ENCODER_SCRIPT --i_file $dataset --o_prefix $TRAINING_DATASETS_PATH/$dataset_basename --column_name "$MIRNA_COL_NAME"
+    if [ $? -ne 0 ]; then
+        print_error "Failed to encode training dataset '$dataset'!"
+        exit 1
+    fi
+done
+
+echo ""
+
+# encode testing datasets
+for dataset in $TESTING_DATA_FILES; do
+    # get basename of dataset
+    dataset_basename=$(basename "$dataset" ".tsv")
+
+    python3 $ENCODER_SCRIPT --i_file $dataset --o_prefix $TESTING_DATASETS_PATH/$dataset_basename --column_name "$MIRNA_COL_NAME"
+    if [ $? -ne 0 ]; then
+        print_error "Failed to encode testing dataset '$dataset'!"
+        exit 1
+    fi
+done
+
+echo ""
+print_success "Successfully encoded all datasets"
 
 
 
@@ -82,28 +173,26 @@ print_success "Selected plot bool: $PLOT_BOOL"
 print_success "Proceeding with execution..."
 echo ""
 
-TRAINING_DATASET_PATH="BiLSTM/data/BiLSTM_data/training"
-
 # ensure training directory exist
-if [ ! -d "$TRAINING_DATASET_PATH" ]; then
-    print_error "Testing dataset directory '$TRAINING_DATASET_PATH' not found!"
+if [ ! -d "$TRAINING_DATASETS_PATH" ]; then
+    print_error "Testing dataset directory '$TRAINING_DATASETS_PATH' not found!"
     exit 1
 fi
 
 # get all training datasets containing '_dataset.npy'
-TRAIN_DATA_FILES=$(find "$TRAINING_DATASET_PATH" -type f -name "*_dataset.npy" | sort | tr '\n' ',' | sed 's/,$//')
+TRAIN_DATA_FILES=$(find "$TRAINING_DATASETS_PATH" -type f -name "*_dataset.npy" | sort | tr '\n' ',' | sed 's/,$//')
 # get all training datasets containing '_label.npy'
-TRAIN_LABEL_FILES=$(find "$TRAINING_DATASET_PATH" -type f -name "*_labels.npy" | sort | tr '\n' ',' | sed 's/,$//')
+TRAIN_LABEL_FILES=$(find "$TRAINING_DATASETS_PATH" -type f -name "*_labels.npy" | sort | tr '\n' ',' | sed 's/,$//')
 
 # validate that training dataset files were found
 if [ -z "$TRAIN_DATA_FILES" ]; then
-    print_error "No training datasets found in '$TRAINING_DATASET_PATH'!"
+    print_error "No training datasets found in '$TRAINING_DATASETS_PATH'!"
     exit 1
 fi
 
 # validate that training label files were found
 if [ -z "$TRAIN_LABEL_FILES" ]; then
-    print_error "No training labels found in '$TRAINING_DATASET_PATH'!"
+    print_error "No training labels found in '$TRAINING_DATASETS_PATH'!"
     exit 1
 fi
 
@@ -125,11 +214,9 @@ echo ""
 # * PREDICT ---
 # models and testing_datasets.npy are needed
 
-TESTING_DATASET_PATH="BiLSTM/data/BiLSTM_data/testing"
-
 # ensure testing directory exist
-if [ ! -d "$TESTING_DATASET_PATH" ]; then
-    print_error "Testing dataset directory '$TESTING_DATASET_PATH' not found!"
+if [ ! -d "$TESTING_DATASETS_PATH" ]; then
+    print_error "Testing dataset directory '$TESTING_DATASETS_PATH' not found!"
     exit 1
 fi
 
@@ -149,13 +236,13 @@ if [ ! -f "$PREDICTIONS_SCRIPT" ]; then
 fi
 
 # get all testing datasets containing '_dataset.npy'
-TEST_DATA_FILES=$(find "$TESTING_DATASET_PATH" -type f -name "*_dataset.npy" | sort | tr '\n' ',' | sed 's/,$//')
+TEST_DATA_FILES=$(find "$TESTING_DATASETS_PATH" -type f -name "*_dataset.npy" | sort | tr '\n' ',' | sed 's/,$//')
 # get all trained models ending in '.keras'
 MODEL_FILES=$(find "$SAVED_MODELS_PATH" -type f -name "*.keras" | sort | tr '\n' ',' | sed 's/,$//')
 
 # validate that test dataset files were found
 if [ -z "$TEST_DATA_FILES" ]; then
-    print_error "No testing datasets found in '$TESTING_DATASET_PATH'!"
+    print_error "No testing datasets found in '$TESTING_DATASETS_PATH'!"
     exit 1
 fi
 
@@ -203,13 +290,13 @@ if [ ! -f "$EVALUATIONS_SCRIPT" ]; then
 fi
 
 # get all testing datasets containing '_labels.npy'
-TEST_LABEL_FILES=$(find "$TESTING_DATASET_PATH" -type f -name "*_labels.npy" | sort | tr '\n' ',' | sed 's/,$//')
+TEST_LABEL_FILES=$(find "$TESTING_DATASETS_PATH" -type f -name "*_labels.npy" | sort | tr '\n' ',' | sed 's/,$//')
 # get all prediction files ending in '.tsv'
 PREDICTION_FILES=$(find "$SAVED_PREDICTIONS_PATH" -type f -name "*.tsv" | sort | tr '\n' ',' | sed 's/,$//')
 
 # validate that test label files were found
 if [ -z "$TEST_LABEL_FILES" ]; then
-    print_error "No testing datasets found in '$TESTING_DATASET_PATH'!"
+    print_error "No testing datasets found in '$TESTING_DATASETS_PATH'!"
     exit 1
 fi
 
