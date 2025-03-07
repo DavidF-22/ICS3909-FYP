@@ -13,7 +13,7 @@ from tensorflow.keras.losses import BinaryCrossentropy
 # * PLOTTING ---
 
 # plot ROC curve for cross-validated model evaluation
-def plot_roc_crossval(labels, predictions, save_dir, model_name, count_plots, n_splits=5):
+def plot_roc_crossval(labels, predictions, save_dir, model_name, count_plots, count_preds, n_splits=5):
     # Create StratifiedKFold instance (to keep class distribution balanced in each fold)
     cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
     
@@ -64,15 +64,15 @@ def plot_roc_crossval(labels, predictions, save_dir, model_name, count_plots, n_
     # Labels and legend
     plt.xlabel("False Positive Rate")
     plt.ylabel("True Positive Rate")
-    plt.title(f"Cross-Validated ROC Curve - {model_name}")
+    plt.title(f"ResNet - Cross-Validated ROC Curve - {model_name}")
     plt.legend(loc="lower right")
     plt.grid(alpha=0.3)
 
-    plt.savefig(os.path.join(save_dir, f'ROC_{os.path.splitext(model_name)[0]}.{count_plots}.png'))
+    plt.savefig(os.path.join(save_dir, f'{os.path.splitext(model_name)[0]}_p{count_plots}_pred{count_preds}_ROC.png'))
     plt.close('all')
 
 # plot Precision-Recall curve for cross-validated model evaluation
-def plot_pr_crossval(labels, predictions, save_dir, model_name, count_plots, n_splits=5):
+def plot_pr_crossval(labels, predictions, save_dir, model_name, count_plots, count_preds, n_splits=5):
     # Create StratifiedKFold instance
     cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
     
@@ -109,7 +109,7 @@ def plot_pr_crossval(labels, predictions, save_dir, model_name, count_plots, n_s
 
     # Plot mean PR curve
     plt.plot(mean_recall, mean_precision, color="blue",
-             label = fr"Mean ROC (AUC = {mean_auc:.3f} $\pm$ {std_auc:.3f})",
+             label = fr"Mean PR (AUC = {mean_auc:.3f} $\pm$ {std_auc:.3f})",
              linewidth=2)
 
     # Shade standard deviation
@@ -120,12 +120,12 @@ def plot_pr_crossval(labels, predictions, save_dir, model_name, count_plots, n_s
     # Labels and legend
     plt.xlabel("Recall")
     plt.ylabel("Precision")
-    plt.title(f"Cross-Validated PR Curve - {model_name}")
+    plt.title(f"ResNet - Cross-Validated PR Curve - {model_name}")
     plt.legend(loc="lower left")
     plt.grid(alpha=0.3)
     
     # Save plot
-    plt.savefig(os.path.join(save_dir, f'PR_{os.path.splitext(model_name)[0]}.{count_plots}.png'))
+    plt.savefig(os.path.join(save_dir, f'{os.path.splitext(model_name)[0]}_p{count_plots}_pred{count_preds}_PR.png'))
     plt.close('all')
     
 # * HANDELING MEMMAP ---   
@@ -183,12 +183,12 @@ def main():
     args = parser.parse_args()
     
     # split model and dataset paths into lists and sort them
-    test_data_files = sorted(args.encoded_data.split(','), reverse=True)
-    test_label_files = sorted(args.encoded_labels.split(','), reverse=True)
-    prediction_files = sorted(args.predictions.split(','), reverse=True)
+    test_data_files = sorted(args.encoded_data.split(','))
+    test_label_files = sorted(args.encoded_labels.split(','))
+    prediction_files = sorted(args.predictions.split(','))
     
     # initialise save predictions path
-    results_file_path = f'Saves/ResNet_evaluation_{args.regularization}_results.txt'
+    results_file_path = f'Saves/ResNet_{args.regularization}_evaluation_logs.txt'
     
     if args.plot_plots == 'true':
         # create directory for saving plots
@@ -199,18 +199,25 @@ def main():
     with open(results_file_path, 'w') as results_file:
         pass
             
-    count_plots = 2
+    count_preds = 1
+    loss_fn = BinaryCrossentropy()
         
     # iterate over all test data, test label and prediction files
     for test_data, test_label, prediction in zip(test_data_files, test_label_files, prediction_files):
+        # initialise plot counter
+        count_plots = 2
+        
         # get test data name for easy identification
         test_data_name = os.path.basename(test_data)
+        test_label_name = os.path.basename(test_label)
+        prediction_name = os.path.basename(prediction)
         
         # load the data and labels
-        print(f"Loading encoded data from: {test_data} ...")
+        print(f"\nLoading encoded data from: {test_data_name} and {test_label_name} ...")
         test_data, test_labels = load_data(test_data, test_label)
         
         # load the predictions
+        print(f"Loading predictions from: {prediction_name} ...")
         predictions_df = pd.read_csv(prediction, sep='\t')
         
         # iterate over each model present in the prediction file header
@@ -222,8 +229,9 @@ def main():
             predictions = predictions_df[model_name].values
             
             # compute test loss with binary crossentropy
-            test_loss = BinaryCrossentropy(test_labels, predictions).numpy()
-            # compute accuracy
+            test_loss = loss_fn(test_labels, predictions).numpy()
+
+            # compute accuracy by thresholding the predictions
             pred_labels = (predictions >= 0.5).astype(int)
             test_accuracy = accuracy_score(test_labels, pred_labels)
             
@@ -234,14 +242,14 @@ def main():
             
             if args.plot_plots == 'true':
                 print("Plotting ROC and PR curves ...")
-                plot_roc_crossval(test_labels, predictions, save_dir, model_name, count_plots)
-                plot_pr_crossval(test_labels, predictions, save_dir, model_name, count_plots)
+                plot_roc_crossval(test_labels, predictions, save_dir, model_name, count_plots, count_preds)
+                plot_pr_crossval(test_labels, predictions, save_dir, model_name, count_plots, count_preds)
             else:
                 print("Skipping plotting ...")
             
             # write the results to the results file
             with open(results_file_path, 'a') as results_file:
-                results_file.write(f"\nPlot Number: {count_plots}\n")
+                results_file.write(f"\nPlot ID: p{count_plots}_pred{count_preds}\n")
                 results_file.write(f"Dataset: {test_data_name}\n")
                 results_file.write(f"**Test loss:** {test_loss:.3f}\n")
                 results_file.write(f"**Test accuracy:** {test_accuracy:.3f} - {(test_accuracy * 100):.3f}%\n")
@@ -249,14 +257,16 @@ def main():
                 results_file.write(f"**ROC-AUC:** {roc_auc:.3f}\n\n")
                 results_file.write("=" * 100 + "\n")
             
-            # clear the memory-mapped data
-            del test_data, test_labels, predictions, predictions_df
-            # force garbage collection
-            gc.collect()
-            # clear TensorFlow/Keras session to free memory
-            tf.keras.backend.clear_session()
-            
             count_plots += 1
+        
+        count_preds += 1
+        
+        # clear the memory-mapped data
+        del test_data, test_labels, predictions, predictions_df
+        # force garbage collection
+        gc.collect()
+        # clear TensorFlow/Keras session to free memory
+        tf.keras.backend.clear_session()
         
     # write completion message to results file
     with open(results_file_path, 'a') as results_file:

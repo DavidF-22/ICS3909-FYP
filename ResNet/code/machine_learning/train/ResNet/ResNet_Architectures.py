@@ -59,6 +59,10 @@ class ResBlock_Large(layers.Layer):
 
         self.activation2 = layers.ReLU()  # activation after second convolution
         self.batch_norm2 = layers.BatchNormalization()  # batch normalization after second convolution
+        
+    def build(self, input_shape):
+        # tells keras that the layer is built
+        super(ResBlock_Large, self).build(input_shape)
 
     def call(self, inputs):
         """
@@ -152,6 +156,10 @@ class ResBlock_SmallAndMedium(layers.Layer):
             self.shortcut_bn = layers.BatchNormalization()
         else:
             self.shortcut_conv = None
+            
+    def build(self, input_shape):
+        # tells Keras that the layer is built. 
+        super(ResBlock_SmallAndMedium, self).build(input_shape)
 
     def call(self, inputs, training=False):
         """
@@ -201,8 +209,8 @@ def build_resnet_small(input_shape, dropout_rate, learning_rate, reg_factor=None
     x = layers.Activation("relu")(x)
 
     # add ResBlocks
-    x = ResBlock_SmallAndMedium(reg_factor, regularizer_type, filters=64, downsample=False)(x)
-    x = ResBlock_SmallAndMedium(reg_factor, regularizer_type, filters=128, downsample=True)(x)
+    x = ResBlock_SmallAndMedium(downsample=False, filters=64, reg_factor=reg_factor, regularizer_type=regularizer_type)(x)
+    x = ResBlock_SmallAndMedium(downsample=True, filters=128, reg_factor=reg_factor, regularizer_type=regularizer_type)(x)
     
     # use Global Average Pooling to reduce feature map dimensions
     x = layers.GlobalAveragePooling2D()(x)
@@ -236,9 +244,9 @@ def build_resnet_medium(input_shape, dropout_rate, learning_rate, reg_factor=Non
     x = layers.Activation("relu")(x)
 
     # add ResBlocks
-    x = ResBlock_SmallAndMedium(reg_factor, regularizer_type, filters=64, downsample=False)(x)
-    x = ResBlock_SmallAndMedium(reg_factor, regularizer_type, filters=128, downsample=True)(x)
-    x = ResBlock_SmallAndMedium(reg_factor, regularizer_type, filters=256, downsample=True)(x)
+    x = ResBlock_SmallAndMedium(downsample=False, filters=64, reg_factor=reg_factor, regularizer_type=regularizer_type)(x)
+    x = ResBlock_SmallAndMedium(downsample=True, filters=128, reg_factor=reg_factor, regularizer_type=regularizer_type)(x)
+    x = ResBlock_SmallAndMedium(downsample=True, filters=128, reg_factor=reg_factor, regularizer_type=regularizer_type)(x)
     
     # use Global Average Pooling to reduce feature map dimensions
     x = layers.GlobalAveragePooling2D()(x)
@@ -272,8 +280,8 @@ def build_resnet_large(input_shape, dropout_rate, learning_rate, reg_factor=None
     x = layers.BatchNormalization()(x)
 
     # add ResBlocks
-    x = ResBlock_Large(reg_factor, regularizer_type, filters=64, downsample=False)(x)
-    x = ResBlock_Large(reg_factor, regularizer_type, filters=128, downsample=True)(x)
+    x = ResBlock_Large(downsample=False, filters=64, reg_factor=reg_factor, regularizer_type=regularizer_type)(x)
+    x = ResBlock_Large(downsample=True, filters=128, reg_factor=reg_factor, regularizer_type=regularizer_type)(x)
 
     # flatten and add dense layers
     x = layers.Flatten()(x)

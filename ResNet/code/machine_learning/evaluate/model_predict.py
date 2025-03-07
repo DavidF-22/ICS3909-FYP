@@ -1,4 +1,7 @@
 # import
+import sys
+sys.path.append("ResNet/code/machine_learning/train/ResNet")
+
 import os
 import gc
 import argparse
@@ -7,7 +10,7 @@ import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 
-from ResNet.code.machine_learning.train.ResNet.ResNet_Architectures import ResBlock_SmallAndMedium, ResBlock_Large
+from ResNet_Architectures import ResBlock_SmallAndMedium, ResBlock_Large
   
 # * PLOTTING ---
 
@@ -69,7 +72,7 @@ def main():
     args = parser.parse_args()
     
     # split model and dataset paths into lists and sort them
-    test_data_files = sorted(args.encoded_data.split(','), reverse=True)
+    test_data_files = sorted(args.encoded_data.split(','))
     model_files = sorted(args.trained_models.split(','), key=simple_sort_key)
     
     # check if --regularization is set to either "NoReg" or "WithReg"
@@ -86,6 +89,8 @@ def main():
     elif args.ResNet_type == 'large':
         RESBLOCK_CLASS = ResBlock_Large
     
+    count = 1
+    
     # iterate over all test data files and make predictions
     for test_data in test_data_files:
         # check if dataset file exists
@@ -95,23 +100,24 @@ def main():
 
         # extract dataset name (remove directory and extension)
         dataset_name = os.path.splitext(os.path.basename(test_data))[0]
+        dataset_name = dataset_name.replace('_test_dataset', '')
         
         # initialize dataframe to store model predictions
         predictions_df = pd.DataFrame()
         
         # load encoded test data
-        print(f"\n----- <Loading encoded data from: {test_data}> -----\n")
+        print(f"\n----- <Loading encoded data from: {dataset_name}> -----\n")
         encoded_test_data = load_data(test_data)
 
         # iterate over all model files
         for model_path in model_files:
+            # get model name for column header
+            model_name = os.path.basename(model_path)
+            
             # check if model exists
             if not os.path.exists(model_path):
                 print(f"!!! Error: Model '{model_path}' not found! Skipping... !!!")
                 continue
-            
-            # get model name for column header
-            model_name = os.path.basename(model_path)
 
             # load mdel using custom_objects to load the ResBlock class
             print(f"Loading model: {model_path} ...")
@@ -130,19 +136,20 @@ def main():
             gc.collect()
             
         # define output path
-        save_path = os.path.join(save_dir, f"ResNet_{args.regularization}_{dataset_name}.tsv")
+        save_path = os.path.join(save_dir, f"{args.regularization}_{dataset_name}_{count}.tsv")
+        
+        count += 1
 
         # save predictions as .tsv file
         print(f"\nSaving predictions to: {save_path}")
         predictions_df.to_csv(save_path, sep='\t', index=False, float_format='%.6f')
-
-        print(f"Predictions for {test_data} saved to {save_path}\n")
         
         # clear memory-mapped data after each dataset
         del encoded_test_data, predictions_df
         gc.collect()
 
     print(f"\n----- <All predictions saved successfully in {save_dir}> -----\n\n")
+
 
 if __name__ == "__main__":
     main()

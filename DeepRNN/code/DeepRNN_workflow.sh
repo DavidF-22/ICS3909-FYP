@@ -172,6 +172,7 @@ done
 
 echo ""
 print_success "Successfully encoded all datasets"
+echo ""
 
 
 
@@ -226,6 +227,11 @@ echo ""
 python3 "$SCRIPT_PATH" --encoded_data "$TRAIN_DATA_FILES" --encoded_labels "$TRAIN_LABEL_FILES" --plot_plots "$PLOT_BOOL"
 
 # print success message
+if [ $? -ne 0 ]; then
+    print_error "Failed to train model!"
+    exit 1 # comment out to continue with the rest of the script when debugging locally
+fi
+    
 print_success "Training completed successfully"
 echo ""
 
@@ -284,7 +290,12 @@ echo ""
 # run the predictions script
 python3 "$PREDICTIONS_SCRIPT" --encoded_data "$TEST_DATA_FILES" --trained_models "$MODEL_FILES" --regularization "$REG_TYPE"
 
-# output success message
+# print success message
+if [ $? -ne 0 ]; then
+    print_error "Failed to generate predictions"
+    exit 1
+fi
+
 print_success "Predictions obtained successfully"
 echo ""
 
@@ -340,8 +351,15 @@ echo ""
 # run the evaluations script
 python3 "$EVALUATIONS_SCRIPT" --encoded_data "$TEST_DATA_FILES" --encoded_labels "$TEST_LABEL_FILES" --predictions "$PREDICTION_FILES" --regularization "$REG_TYPE" --plot_plots "$PLOT_BOOL"
 
-# output success message
+# print success message
+if [ $? -ne 0 ]; then
+    print_error "Failed to evaluate model!"
+    exit 1
+fi
+
 echo ""
 print_success "Evaluations obtained successfully"
 echo ""
-print_success "$REG_TYPE DeepRNN pipeline completed successfully"
+print_success "$REG_TYPE BiLSTM pipeline completed successfully"
+
+exit 0

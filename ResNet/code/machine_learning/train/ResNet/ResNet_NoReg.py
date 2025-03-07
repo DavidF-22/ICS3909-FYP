@@ -28,7 +28,7 @@ regularizer_type = "NoReg"
 
 # plot training and validation accuracy and loss
 def plot_training(history, dataset_name, regularizer_type, save_dir, count_models, count_plots):
-    # plotting training and validation accuracy and loss
+    # plotting accuracy
     plt.figure(figsize=(12, 6))
     plt.subplot(1, 2, 1)
     plt.plot(history.history['accuracy'], label='Train Accuracy')
@@ -52,7 +52,7 @@ def plot_training(history, dataset_name, regularizer_type, save_dir, count_model
     plt.tight_layout()
     plt.grid()
 
-    plt.savefig(os.path.join(save_dir, f'ResNet_{dataset_name}_MultiTest_{regularizer_type}_{count_models}.{count_plots}.png'))
+    plt.savefig(os.path.join(save_dir, f'{regularizer_type}_{dataset_name}_r{count_models}_p{count_plots}_train.png'))
     plt.close('all')
 
 # * HANDELING MEMMAP ---   
@@ -109,17 +109,25 @@ def main():
     parser.add_argument("-lr", "--learning_rate", required=False, default=0.001, type=float, help="Learning rate for training")
     args = parser.parse_args()
     
-    training_data_files = sorted(args.encoded_data.split(','), reverse=False)
-    training_labels_files = sorted(args.encoded_labels.split(','), reverse=False)
+    training_data_files = sorted(args.encoded_data.split(','))
+    training_labels_files = sorted(args.encoded_labels.split(','))
     
+    # create the save directory
+    make_files(os.path.split(save_dir)[0], [os.path.split(save_dir)[1]])
+    
+    # clear the results file
+    with open(results_file_path, 'w') as results_file:
+        pass
+        
     # loop through all datasets
     for training_data_file, training_label_file in zip(training_data_files, training_labels_files):
         # extract dataset name
         dataset_name = os.path.splitext(os.path.basename(training_data_file))[0]
-        print(f"Dataset Name: {dataset_name}")
-
+        dataset_name = dataset_name.replace('_train_dataset', '')
+        label_name = os.path.splitext(os.path.basename(training_label_file))[0]
+        
         # load the training dataset
-        print(f"\n----- <Loading Encoded Training Data from {training_data_file}> -----")
+        print(f"\n----- <Loading Encoded Training Data from {dataset_name} and {label_name}> -----")
         # load the encoded training data and labels        
         encoded_training_data, training_labels = load_data(training_data_file, training_label_file)
         
@@ -129,13 +137,6 @@ def main():
 
         input_shape = encoded_training_data.shape[1:]
         print(f"Input shape: {input_shape}\n")
-        
-        # create the save directory
-        make_files(os.path.split(save_dir)[0], [os.path.split(save_dir)[1]])
-        
-        # clear the results file
-        with open(results_file_path, 'w') as results_file:
-            pass
             
         # reset model count
         count_models = 1
@@ -145,7 +146,7 @@ def main():
             print(f"\nTraining model with {dataset_name}, dropout_rate={dropout_rate}\n")
             
             with open(results_file_path, 'a') as results_file:
-                results_file.write(f"\nModel Number: {count_models}\n")
+                results_file.write(f"\nModel ID: {count_models}\n")
                 results_file.write(f"Training model with {dataset_name}, dropout_rate={dropout_rate}")
 
             # start training timer
@@ -189,12 +190,12 @@ def main():
             elif args.plot_plots.lower() == "false":
                 print("----- <Skipping plotting...> -----")
             else:
-                raise ValueError("Invalid input for -pplots. Only 'true' or 'false' are allowed.")
+                raise ValueError("!!! Invalid input for -pplots. Only 'true' or 'false' are allowed !!!")
                 
             # save the model
             print("\n----- <Saving Model> -----")
             # construct the full file path
-            model_path = os.path.join(save_dir, f"ResNet_multiTest_{regularizer_type}_{dataset_name}_{count_models}.keras")
+            model_path = os.path.join(save_dir, f"{regularizer_type}_{dataset_name}_r{count_models}.keras")
             model.save(model_path)
             print("----- <Model Saved Successfully> -----\n\n")
             
@@ -217,7 +218,7 @@ def main():
     with open(results_file_path, 'a') as results_file:
         results_file.write("\n--- Done ---")
     
-    print(f"\nResults saved to {results_file_path}. Graphs saved as '<plot_type>_<dataset_name>_MultiTest_<regularizer_type>_<#>.png'")
+    print(f"\nResults saved to {results_file_path}")
 
 
 if __name__ == "__main__":
