@@ -1,11 +1,16 @@
 # import
+import sys
+sys.path.insert(1, 'BiLSTM/code/')
+
 import os
-import gc
 import argparse
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 from tensorflow.keras.models import load_model
+from helper_functions.ResNet_BiLSTM_DeepRNN_HelperFunctions import (#load_data, 
+                                                                    make_files,
+                                                                    simple_sort_key, 
+                                                                    cleanup)
  
 # * LOADING DATA ---
 
@@ -15,27 +20,7 @@ def load_data(data_file):
     
     return encoded_data
 
-# sorting
-def simple_sort_key(path):
-    if "L1" in path and "L1L2" not in path:
-        return 0  # L1
-    elif "L1L2" in path:
-        return 1  # L1L2
-    elif "L2" in path:
-        return 2  # L2
-    else:
-        return 3
-
-# * CREATING DIRECTORY ---
-
-# create directories for saving models and plots
-def make_files(base_dir, sub_dirs):
-    os.makedirs(base_dir, exist_ok=True)
-    
-    for sub_dir in sub_dirs:
-        os.makedirs(os.path.join(base_dir, sub_dir), exist_ok=True)
-
-# * MAIN ---
+# * MAIN - PREDICT FUNCTION ---
 
 # main pipeline
 def main():
@@ -76,7 +61,7 @@ def main():
         
         # load encoded test data
         print(f"\n----- <Loading encoded data from: {dataset_name}> -----\n")
-        encoded_test_data = load_data(test_data)
+        encoded_test_data = load_data(data_file=test_data)
 
         # iterate over all model files
         for model_path in model_files:
@@ -98,11 +83,8 @@ def main():
             # store predictions in dataframe with model name as column
             predictions_df[model_name] = predictions
             
-            # free TensorFlow session & memory after using the model
-            tf.keras.backend.clear_session()
-            # clear model from memory
             del model, predictions
-            gc.collect()
+            cleanup()
             
         # define output path
         save_path = os.path.join(save_dir, f"{args.regularization}_{dataset_name}_{count}.tsv")
@@ -115,7 +97,7 @@ def main():
         
         # clear memory-mapped data after each dataset
         del encoded_test_data, predictions_df
-        gc.collect()
+        cleanup()
 
     print(f"\n----- <All predictions saved successfully in {save_dir}> -----\n\n")
 

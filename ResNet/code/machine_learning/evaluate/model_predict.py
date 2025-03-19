@@ -1,65 +1,18 @@
 # import
 import sys
-sys.path.append("ResNet/code/machine_learning/train/ResNet")
+sys.path.insert(1, 'ResNet/code/')
 
 import os
-import gc
 import argparse
-import numpy as np
 import pandas as pd
-import tensorflow as tf
 from tensorflow.keras.models import load_model
+from machine_learning.train.ResNet.ResNet_Architectures import ResBlock_SmallAndMedium, ResBlock_Large
+from helper_functions.ResNet_BiLSTM_DeepRNN_HelperFunctions import (load_data, 
+                                                                    make_files,
+                                                                    simple_sort_key, 
+                                                                    cleanup)
 
-from ResNet_Architectures import ResBlock_SmallAndMedium, ResBlock_Large
-  
-# * PLOTTING ---
-
-# get the shape of the memory-mapped file (dataset) - helps in loading the data
-def get_memmap_shape(file_path, element_shape, dtype=np.float32):
-    """Infers the first dimension (dataset_size) for a memory-mapped file."""
-    # size of one element in bytes
-    item_size = np.prod(element_shape) * np.dtype(dtype).itemsize
-    # file size in bytes
-    total_size = os.path.getsize(file_path)
-    # number of elements
-    dataset_size = total_size // item_size
-    
-    # print(f"Total size: {dataset_size}")
-    
-    # return the shape tuple
-    return (dataset_size, *element_shape)
-
-# * LOADING DATA ---
-
-def load_data(data_file):
-    # load encoded data
-    data_element_shape = (50, 20, 1)
-    encoded_data_shape = get_memmap_shape(data_file, data_element_shape)
-    encoded_data = np.memmap(data_file, dtype='float32', mode='r', shape=encoded_data_shape)
-    
-    return encoded_data
-
-# sorting
-def simple_sort_key(path):
-    if "L1" in path and "L1L2" not in path:
-        return 0  # L1
-    elif "L1L2" in path:
-        return 1  # L1L2
-    elif "L2" in path:
-        return 2  # L2
-    else:
-        return 3
-
-# * CREATING DIRECTORY ---
-
-# create directories for saving models and plots
-def make_files(base_dir, sub_dirs):
-    os.makedirs(base_dir, exist_ok=True)
-    
-    for sub_dir in sub_dirs:
-        os.makedirs(os.path.join(base_dir, sub_dir), exist_ok=True)
-
-# * MAIN ---
+# * MAIN - PREDICT FUNCTION ---
 
 # main pipeline
 def main():
@@ -74,6 +27,9 @@ def main():
     # split model and dataset paths into lists and sort them
     test_data_files = sorted(args.encoded_data.split(','))
     model_files = sorted(args.trained_models.split(','), key=simple_sort_key)
+    
+    print(f"Test data files: {test_data_files}")
+    print(f"Model files: {model_files}")
     
     # check if --regularization is set to either "NoReg" or "WithReg"
     if args.regularization not in ["NoReg", "WithReg"]:
@@ -107,7 +63,7 @@ def main():
         
         # load encoded test data
         print(f"\n----- <Loading encoded data from: {dataset_name}> -----\n")
-        encoded_test_data = load_data(test_data)
+        encoded_test_data, _ = load_data(data_file=test_data)
 
         # iterate over all model files
         for model_path in model_files:
@@ -129,11 +85,8 @@ def main():
             # store predictions in dataframe with model name as column
             predictions_df[model_name] = predictions
             
-            # free TensorFlow session & memory after using the model
-            tf.keras.backend.clear_session()
-            # clear model from memory
             del model, predictions
-            gc.collect()
+            cleanup()
             
         # define output path
         save_path = os.path.join(save_dir, f"{args.regularization}_{dataset_name}_{count}.tsv")
@@ -146,7 +99,7 @@ def main():
         
         # clear memory-mapped data after each dataset
         del encoded_test_data, predictions_df
-        gc.collect()
+        cleanup()
 
     print(f"\n----- <All predictions saved successfully in {save_dir}> -----\n\n")
 

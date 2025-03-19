@@ -12,6 +12,11 @@ print_success() {
     echo -e "\e[32m$1\e[0m"
 }
 
+# function to print warning messages in orange
+print_warning() {
+    echo -e "\e[33m$1\e[0m"
+}
+
 
 
 # function to display usage information
@@ -231,7 +236,7 @@ if [ $? -ne 0 ]; then
     print_error "Failed to train model!"
     exit 1 # comment out to continue with the rest of the script when debugging locally
 fi
-    
+
 print_success "Training completed successfully"
 echo ""
 
@@ -361,5 +366,6 @@ echo ""
 print_success "Evaluations obtained successfully"
 echo ""
 print_success "$REG_TYPE BiLSTM pipeline completed successfully"
+print_warning "NOTE: Please remove, rename or move the 'Saves' directory to avoid conflicts with future runs"
 
 exit 0
