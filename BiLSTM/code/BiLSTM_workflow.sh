@@ -235,7 +235,7 @@ python3 "$SCRIPT_PATH" --encoded_data "$TRAIN_DATA_FILES" --encoded_labels "$TRA
 # print success message
 if [ $? -ne 0 ]; then
     print_error "Failed to train model!"
-    #exit 1 # comment out to continue with the rest of the script when debugging locally
+    exit 1 # comment out to continue with the rest of the script when debugging locally
 fi
 
 print_success "Training completed successfully"
