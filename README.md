@@ -32,51 +32,73 @@ cd your-repository
    ```
 
 ## Running the Shell Scripts
-Before running any shell script in the repository, you must grant execution permissions. For example, to set permissions for the `encode.sh` script in the ResNet model, run:
+Before running any shell script in the repository, you must grant execution permissions. For example, to set permissions for the `ResNet_workflow.sh` script in the ResNet model, run:
 ```bash
-chmod +x ResNet/code/encode.sh
+chmod +x ResNet/code/ResNet_workflow.sh
 ```
-To execute the script, use:
+To execute the script, use the file bath to the bash script along with its required user inputs:
 ```bash
-ResNet/code/encode.sh
+ResNet/code/ResNet_workflow.sh <user_input>
 ```
 
 ## Script Input Requirements
-- **`encode.sh`**  
-  This script requires **no inputs**.
+Each workflow script accepts a set of command-line arguments. In addition, you can use the -h or --help flag with any script to display the full usage information and a description of each input.
 
-- **Training and Evaluation Scripts**  
-  These scripts require **two inputs**:
-  1. The first input should be either `NoReg` or `WithReg`, indicating whether to train without or with regularization.
-  2. The second input should be either `plot_true` or `plot_false`, specifying if plots should be generated.
+### ResNet_workflow.sh
+**Usage:**
+```bash
+ResNet_workflow.sh [noncodingRNA | miRNA] [small | medium | large] [noreg | withreg] [plot_true | plot_false]
+```
 
-- **Prediction Scripts**  
-  These scripts require only **one input**: either `NoReg` or `WithReg`.
+**Arguments:**
+
+- `noncodingRNA | miRNA:`
+
+  Specifies the column name for the microRNA in the datasets. (This accommodates datasets with different naming conventions.)
+
+- `small | medium | large:`
+
+  Selects the ResNet model variant based on its architecture parameters.
+
+- `noreg | withreg:`
+
+  Indicates whether to train the model without regularization (noreg) or with regularization (withreg).
+
+- `plot_true | plot_false:`
+
+  Specifies whether plots should be generated during training and evaluation.
+
+### DeepRNN_workflow.sh and BiLSTM_workflow.sh
+
+**Usage:**
+```bash
+DeepRNN_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false]
+```
+
+```bash
+./BiLSTM_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false]
+```
+
+**Arguments:**
+
+- `noncodingRNA | miRNA:`
+
+  Specifies the microRNA column name.
+
+- `noreg | withreg:`
+
+  Indicates the type of regularization to use.
+
+- `plot_true | plot_false:`
+
+  Determines whether to generate plots during the workflow.
 
 >_**Note:** Please ensure that you supply the correct inputs corresponding to the desired operation, as mismatches may affect the naming conventions and subsequent mapping of models to plots and results._
-
-## Model Naming Conventions
-When training the models, the programs generate multiple models based on the chosen hyperparameters. There are two scenarios:
-
-1.  **Using both regularization factors and dropout rates:**
-    ```python
-    reg_factors = [0.01, 0.005, 0.005, 0.01, 0.003, 0.002] 
-    dropout_rates = [0.05, 0.09, 0.13, 0.17, 0.21, 0.25]
-    ```
-This configuration produces 6 models for each regularizer type (L1, L2, and L1L2), for a total of **18 models**.
-
-2. **Using only dropout rates:**
-    ```python
-    dropout_rates = [0.05, 0.09, 0.13, 0.17, 0.21, 0.25]
-    ```
-This configuration produces **6 models**.
-
-Each model is named with a number at the end (1 through 6) reflecting the specific combination of regularization factor and dropout rate. In addition, a "plot number" is assigned alongside the model number. These numbers are used in the text file output by the programs to map the trained models to their corresponding plots, and subsequently, to the results.
 
 ## Datasets and Data Folder Placeholders
 Within the repository, several data folders include placeholder `README.md` files. These placeholders indicate, by file name, which datasets need to be placed in each folder. 
 
-**Note:** The files `AGO2_eCLIP_Manakov2022_leftout.tsv` and `AGO2_eCLIP_Manakov2022_full_dataset.tsv` should not be used.
+**Note:** The file `AGO2_eCLIP_Manakov2022_full_dataset.tsv` should not be used.
 
 ### Dataset Sources
 All required datasets can be obtained from the following link: [miRBench_Datasets - Zendo](https://zenodo.org/records/14501607)
