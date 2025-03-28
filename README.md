@@ -23,8 +23,9 @@ cd your-repository
 1. Ensure you are using a Linux-based system or WSL.
 2. Create a virtual environment (optional but recommended):
    ```bash
-   python3 -m venv .venv
-   source .venv/bin/activate
+   python3 -m venv .venv                # create python environment
+   source .venv/bin/activate            # activate environment
+   python3 -m pip install --upgrade pip # upgrad pip to latest version
    ```
 3. Install the required dependencies:
    ```bash
@@ -34,11 +35,11 @@ cd your-repository
 ## Running the Shell Scripts
 Before running any shell script in the repository, you must grant execution permissions. For example, to set permissions for the `ResNet_workflow.sh` script in the ResNet model, run:
 ```bash
-chmod +x ResNet/code/ResNet_workflow.sh
+chmod +x code/ResNet_workflow.sh
 ```
 To execute the script, use the file bath to the bash script along with its required user inputs:
 ```bash
-ResNet/code/ResNet_workflow.sh <user_input>
+code/ResNet_workflow.sh <user_input>
 ```
 
 ## Script Input Requirements
@@ -47,7 +48,7 @@ Each workflow script accepts a set of command-line arguments. In addition, you c
 ### ResNet_workflow.sh
 **Usage:**
 ```bash
-ResNet_workflow.sh [noncodingRNA | miRNA] [small | medium | large] [noreg | withreg] [plot_true | plot_false]
+code/ResNet_workflow.sh [noncodingRNA | miRNA] [small | medium | large] [noreg | withreg] [plot_true | plot_false]
 ```
 
 **Arguments:**
@@ -72,11 +73,11 @@ ResNet_workflow.sh [noncodingRNA | miRNA] [small | medium | large] [noreg | with
 
 **Usage:**
 ```bash
-DeepRNN_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false]
+code/DeepRNN_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false]
 ```
 
 ```bash
-./BiLSTM_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false]
+code/BiLSTM_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false]
 ```
 
 **Arguments:**
