@@ -7,12 +7,12 @@ import argparse
 from tensorflow.keras.regularizers import L1, L2, L1L2
 from sklearn.model_selection import KFold
 from ResNet_Architectures import build_resnet_small, build_resnet_medium, build_resnet_large
-from helper_functions.ResNet_BiLSTM_DeepRNN_HelperFunctions import (load_data, 
-                                                                    make_files, 
-                                                                    calculate_avg_std, 
-                                                                    train_model,
-                                                                    save_model, 
-                                                                    cleanup)
+from helper_functions.model_utils import (load_data, 
+                                          make_files, 
+                                          calculate_avg_std, 
+                                          train_model,
+                                          save_model, 
+                                          cleanup)
 
 # * PARAMS ---
 

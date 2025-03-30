@@ -1,3 +1,4 @@
+# imports
 import sys
 sys.path.insert(1, 'code/')
 
@@ -6,10 +7,10 @@ import argparse
 import numpy as np
 import pandas as pd
 from tensorflow.keras.models import load_model
-from helper_functions.ResNet_BiLSTM_DeepRNN_HelperFunctions import (#load_data, 
-                                                                    make_files,
-                                                                    simple_sort_key, 
-                                                                    cleanup)
+from helper_functions.model_utils import (#load_data, 
+                                          make_files,
+                                          simple_sort_key, 
+                                          cleanup)
 
 # * LOADING DATA ---
 

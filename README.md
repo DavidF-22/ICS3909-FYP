@@ -1,5 +1,5 @@
 
-# miRBind_2.0: miRNA Target Site Prediction
+# Development of Machine Learning Methods for microRNA target site classification
 
 ## Project Overview
 miRBind is a deep learning-based project focused on predicting microRNA (miRNA) target site binding. The project explores different neural network architectures to enhance the accuracy of miRNA-mRNA interaction predictions. This work is part of ongoing research in bioinformatics, specifically in the area of post-transcriptional gene regulation.

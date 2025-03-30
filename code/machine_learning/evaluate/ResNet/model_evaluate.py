@@ -5,13 +5,13 @@ sys.path.insert(1, 'code/')
 import os
 import argparse
 import pandas as pd
-from helper_functions.ResNet_BiLSTM_DeepRNN_HelperFunctions import (load_data, 
-                                                                    make_files, 
-                                                                    plot_roc_crossval, 
-                                                                    plot_pr_crossval,
-                                                                    moving_leftout_dataset,
-                                                                    compute_metrics,  
-                                                                    cleanup)
+from helper_functions.model_utils import (load_data, 
+                                          make_files, 
+                                          plot_roc_crossval, 
+                                          plot_pr_crossval,
+                                          moving_leftout_dataset,
+                                          compute_metrics,  
+                                          cleanup)
 
 # * MAIN - EVALUATION FUNCTION ---
 

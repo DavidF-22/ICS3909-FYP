@@ -7,12 +7,12 @@ import argparse
 import numpy as np
 from sklearn.model_selection import KFold
 from DeepRNN_Architectures import DeepRNN
-from helper_functions.ResNet_BiLSTM_DeepRNN_HelperFunctions import (#load_data, 
-                                                                    make_files, 
-                                                                    calculate_avg_std, 
-                                                                    train_model,
-                                                                    save_model, 
-                                                                    cleanup)
+from helper_functions.model_utils import (#load_data, 
+                                          make_files, 
+                                          calculate_avg_std, 
+                                          train_model,
+                                          save_model, 
+                                          cleanup)
 
 # * PARAMS ---
 
