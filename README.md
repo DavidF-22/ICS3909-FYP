@@ -6,6 +6,62 @@ This final year project (FYP) is a deep learning-based project focused on predic
 
 This project builds on the [miRBind project](https://www.mdpi.com/2073-4425/13/12/2323) and is part of the ongoing miRBind2 publication project, which focuses on improving miRNA target site prediction by training more accurate models on larger datasets. The aim is to better understand miRNA-mRNA interactions by making use of deep learning techniques to predict miRNA binding sites more effectively.
 
+## Project Structure
+```bash
+.
+├── README.md
+├── code
+│   ├── BiLSTM_workflow.sh
+│   ├── DeepRNN_workflow.sh
+│   ├── ResNet_workflow.sh
+│   ├── helper_functions
+│   │   └── model_utils.py
+│   └── machine_learning
+│       ├── encode
+│       │   ├── binding_2D_matrix_encoder.py
+│       │   └── sequence_encoder_16ntPairs.py
+│       ├── evaluate
+│       │   ├── BiLSTM
+│       │   │   ├── model_evaluate.py
+│       │   │   └── model_predict.py
+│       │   ├── DeepRNN
+│       │   │   ├── model_evaluate.py
+│       │   │   └── model_predict.py
+│       │   └── ResNet
+│       │       ├── model_evaluate.py
+│       │       └── model_predict.py
+│       └── train
+│           ├── BiLSTM
+│           │   ├── BiLSTM_Architectures.py
+│           │   ├── BiLSTM_NoReg.py
+│           │   └── BiLSTM_WithReg.py
+│           ├── DeepRNN
+│           │   ├── DeepRNN_Architectures.py
+│           │   ├── DeepRNN_NoReg.py
+│           │   └── DeepRNN_WithReg.py
+│           └── ResNet
+│               ├── ResNet_Architectures.py
+│               ├── ResNet_NoReg.py
+│               └── ResNet_WithReg.py
+├── data
+│   ├── BiLSTM_data
+│   │   ├── testing
+│   │   │   └── README.md
+│   │   └── training
+│   │       └── README.md
+│   ├── DeepRNN_data
+│   │   ├── testing
+│   │   │   └── README.md
+│   │   └── training
+│   │       └── README.md
+│   └── ResNet_data
+│       ├── testing
+│       │   └── README.md
+│       └── training
+│           └── README.md
+└── requirements.txt
+```
+
 ## Models Implemented
 The repository contains the following models for miRNA target site classification:
 - **Residual Network (ResNet)**
