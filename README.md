@@ -4,6 +4,8 @@
 ## Project Overview
 This final year project (FYP) is a deep learning-based project focused on predicting microRNA (miRNA) target site binding. The project explores different neural network architectures to enhance the accuracy of miRNA-mRNA interaction predictions. This work is part of ongoing research in bioinformatics, specifically in the area of post-transcriptional gene regulation.
 
+This project is part of the ongoing miRBind2 publication project, which focuses on improving miRNA target site prediction by training more accurate models on larger datasets. The aim is to better understand miRNA-mRNA interactions by making use of deep learning techniques to predict miRNA binding sites more effectively.
+
 ## Models Implemented
 The repository contains the following models for miRNA target site classification:
 - **Residual Network (ResNet)**
@@ -121,6 +123,3 @@ Use the following command to decompress the file:
   ```bash
   gzip -d `__filename__`.gz
   ```
-
----
-This project is part of ongoing research in miRNA target site prediction and aims to improve the understanding of miRNA-mRNA interactions using deep learning techniques.
