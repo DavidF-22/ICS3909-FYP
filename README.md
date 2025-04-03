@@ -9,7 +9,7 @@ This project builds on the [miRBind project](https://www.mdpi.com/2073-4425/13/1
 ## Project Structure
 ```bash
 .
-├── README.md
+│
 ├── code
 │   ├── BiLSTM_workflow.sh
 │   ├── DeepRNN_workflow.sh
@@ -43,23 +43,22 @@ This project builds on the [miRBind project](https://www.mdpi.com/2073-4425/13/1
 │               ├── ResNet_Architectures.py
 │               ├── ResNet_NoReg.py
 │               └── ResNet_WithReg.py
-├── data
-│   ├── BiLSTM_data
-│   │   ├── testing
-│   │   │   └── README.md
-│   │   └── training
-│   │       └── README.md
-│   ├── DeepRNN_data
-│   │   ├── testing
-│   │   │   └── README.md
-│   │   └── training
-│   │       └── README.md
-│   └── ResNet_data
-│       ├── testing
-│       │   └── README.md
-│       └── training
-│           └── README.md
-└── requirements.txt
+└── data
+    ├── BiLSTM_data
+    │   ├── testing
+    │   │   └── README.md
+    │   └── training
+    │       └── README.md
+    ├── DeepRNN_data
+    │   ├── testing
+    │   │   └── README.md
+    │   └── training
+    │       └── README.md
+    └── ResNet_data
+        ├── testing
+        │   └── README.md
+        └── training
+            └── README.md
 ```
 
 ## Models Implemented
@@ -160,7 +159,7 @@ Within the repository, several data folders include placeholder `README.md` file
 **Note:** The file `AGO2_eCLIP_Manakov2022_full_dataset.tsv` should not be used.
 
 ### Dataset Sources
-All required datasets can be obtained from the following link: [miRBench_Datasets - Zendo](https://zenodo.org/records/14501607)
+All required datasets can be obtained from the following link: [miRBench_Datasets - Zenodo](https://zenodo.org/records/14501607)
 
 ### Unpacking .tsv.gz Files
 This repository works with `.tsv` files. If your datasets are provided as `.tsv.gz` files, they will need to be unpacked:
