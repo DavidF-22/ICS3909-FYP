@@ -1,6 +1,21 @@
 
 # Development of Machine Learning Methods for microRNA target site classification
 
+## Table of Contents
+
+- [Project Overview](#project-overview)  
+- [Project Tree](#project-tree)  
+- [Models Implemented](#models-implemented)  
+- [Cloning the Repository](#cloning-the-repository)  
+- [Setting Up the Environment](#setting-up-the-environment)  
+- [Running the Shell Scripts](#running-the-shell-scripts)  
+- [Script Input Requirements](#script-input-requirements)  
+  - [ResNet_workflow.sh](#resnet_workflowsh)  
+  - [DeepRNN_workflow.sh and BiLSTM_workflow.sh](#deeprnn_workflowsh-and-bilstm_workflowsh)  
+- [Datasets and Data Folder Placeholders](#datasets-and-data-folder-placeholders)  
+  - [Dataset Sources](#dataset-sources)  
+  - [Unpacking .tsv.gz Files](#unpacking-tsvgz-files)
+
 ## Project Overview
 This final year project (FYP) is a deep learning-based project focused on predicting microRNA (miRNA) target site binding. The project explores different neural network architectures to enhance the accuracy of miRNA-mRNA interaction predictions. This work is part of ongoing research in bioinformatics, specifically in the area of post-transcriptional gene regulation.
 
