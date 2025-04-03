@@ -9,7 +9,6 @@ This project builds on the [miRBind project](https://www.mdpi.com/2073-4425/13/1
 ## Project Structure
 ```bash
 .
-│
 ├── code
 │   ├── BiLSTM_workflow.sh
 │   ├── DeepRNN_workflow.sh
