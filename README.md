@@ -4,8 +4,8 @@
 ## Table of Contents
 
 - [Project Overview](#project-overview)  
-- [Project Tree](#project-tree)  
 - [Models Implemented](#models-implemented)  
+- [Project Tree](#project-tree)  
 - [Cloning the Repository](#cloning-the-repository)  
 - [Setting Up the Environment](#setting-up-the-environment)  
 - [Running the Shell Scripts](#running-the-shell-scripts)  
@@ -20,6 +20,12 @@
 This final year project (FYP) is a deep learning-based project focused on predicting microRNA (miRNA) target site binding. The project explores different neural network architectures to enhance the accuracy of miRNA-mRNA interaction predictions. This work is part of ongoing research in bioinformatics, specifically in the area of post-transcriptional gene regulation.
 
 This project builds on the [miRBind project](https://www.mdpi.com/2073-4425/13/12/2323) and is part of the ongoing miRBind2 publication project, which focuses on improving miRNA target site prediction by training more accurate models on larger datasets. The aim is to better understand miRNA-mRNA interactions by making use of deep learning techniques to predict miRNA binding sites more effectively.
+
+## Models Implemented
+The repository contains the following models for miRNA target site classification:
+- **Residual Network (ResNet)**
+- **Bidirectional Long Short-Term Memory (BiLSTM)**
+- **Deep Recurrent Neural Network (DeepRNN)**
 
 ## Project Tree
 ```bash
@@ -79,12 +85,6 @@ This project is organized into two main directories: `code` and `data`. The `cod
 Each model architecture (BiLSTM, DeepRNN, and ResNet) has its own dedicated folder within both train and evaluate, allowing for clear traceability between files and their corresponding architectures. Furthermore, the helper_functions directory contains reusable utility functions that support model building, training, and evaluation across different architectures.
 
 Encoding scripts handle sequence and binding matrix transformations, while workflow `.sh` scripts in the `root` streamline the execution process. Lastly, the `data` directory is divided by model type and workflow stage (training or testing), each with its own `README` file acting as placeholders to indicate which datasets should be placed there instead of the README file. This setup ensures modularity, clarity, and ease of use.
-
-## Models Implemented
-The repository contains the following models for miRNA target site classification:
-- **Residual Network (ResNet)**
-- **Bidirectional Long Short-Term Memory (BiLSTM)**
-- **Deep Recurrent Neural Network (DeepRNN)**
 
 ## Cloning the Repository
 To clone this repository, use the following command:
