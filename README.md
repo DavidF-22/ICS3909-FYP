@@ -6,7 +6,7 @@ This final year project (FYP) is a deep learning-based project focused on predic
 
 This project builds on the [miRBind project](https://www.mdpi.com/2073-4425/13/12/2323) and is part of the ongoing miRBind2 publication project, which focuses on improving miRNA target site prediction by training more accurate models on larger datasets. The aim is to better understand miRNA-mRNA interactions by making use of deep learning techniques to predict miRNA binding sites more effectively.
 
-## Project Structure
+## Project Tree
 ```bash
 .
 ├── code
@@ -59,6 +59,11 @@ This project builds on the [miRBind project](https://www.mdpi.com/2073-4425/13/1
         └── training
             └── README.md
 ```
+This project is organized into two main directories: `code` and `data`. The `code` directory contains the workflow scripts, helper functions and machine learning logic, which is further divided into the `encode`, `train` and `evaluate` directories. 
+
+Each model architecture (BiLSTM, DeepRNN, and ResNet) has its own dedicated folder within both train and evaluate, allowing for clear traceability between files and their corresponding architectures. Furthermore, the helper_functions directory contains reusable utility functions that support model building, training, and evaluation across different architectures.
+
+Encoding scripts handle sequence and binding matrix transformations, while workflow `.sh` scripts in the `root` streamline the execution process. Lastly, the `data` directory is divided by model type and workflow stage (training or testing), each with its own `README` file acting as placeholders to indicate which datasets should be placed there instead of the README file. This setup ensures modularity, clarity, and ease of use.
 
 ## Models Implemented
 The repository contains the following models for miRNA target site classification:
