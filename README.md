@@ -145,6 +145,11 @@ code/ResNet_workflow.sh [noncodingRNA | miRNA] [small | medium | large] [noreg |
 
   Specifies whether plots should be generated during training and evaluation.
 
+- `seed`
+
+  Ensures reproducibility by setting a fixed random seed for data processing and model initialization.
+
+
 ### DeepRNN_workflow.sh and BiLSTM_workflow.sh
 
 **Usage:**
