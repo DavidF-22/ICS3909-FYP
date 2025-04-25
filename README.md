@@ -15,6 +15,7 @@
 - [Datasets and Data Folder Placeholders](#datasets-and-data-folder-placeholders)  
   - [Dataset Sources](#dataset-sources)  
   - [Unpacking .tsv.gz Files](#unpacking-tsvgz-files)
+- [Contact](#contact)
 
 ## Project Overview
 This final year project (FYP) is a deep learning-based project focused on predicting microRNA (miRNA) target site binding. The project explores different neural network architectures to enhance the accuracy of miRNA-mRNA interaction predictions. This work is part of ongoing research in bioinformatics, specifically in the area of post-transcriptional gene regulation.
@@ -202,3 +203,7 @@ Use the following command to decompress the file:
   ```bash
   gzip -d `__filename__`.gz
   ```
+
+## Contact
+
+For inquiries or feedback, please contact [David Farrugia](mailto:david.farrugia.22@um.edu.mt)
