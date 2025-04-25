@@ -206,4 +206,4 @@ Use the following command to decompress the file:
 
 ## Contact
 
-For inquiries or feedback, please contact [David Farrugia](mailto:david.farrugia.22@um.edu.mt)
+If you have any questions or feedback, please contact [David Farrugia](mailto:david.farrugia.22@um.edu.mt)
