@@ -125,7 +125,7 @@ Each workflow script accepts a set of command-line arguments. In addition, you c
 ### ResNet_workflow.sh
 **Usage:**
 ```bash
-code/ResNet_workflow.sh [noncodingRNA | miRNA] [small | medium | large] [noreg | withreg] [plot_true | plot_false]
+code/ResNet_workflow.sh [noncodingRNA | miRNA] [small | medium | large] [noreg | withreg] [plot_true | plot_false] [seed]
 ```
 
 **Arguments:**
@@ -155,11 +155,11 @@ code/ResNet_workflow.sh [noncodingRNA | miRNA] [small | medium | large] [noreg |
 
 **Usage:**
 ```bash
-code/DeepRNN_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false]
+code/DeepRNN_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false] [seed]
 ```
 
 ```bash
-code/BiLSTM_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false]
+code/BiLSTM_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false] [seed]
 ```
 
 **Arguments:**
