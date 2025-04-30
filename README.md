@@ -119,7 +119,7 @@ To execute the script, use the file bath to the bash script along with its requi
 ```bash
 $ code/ResNet_workflow.sh <user_input>
 ```
-If you wish to run all the workflows at once, you can use the `run_all_workflows.sh` script provided in the root directory. **Please note that executing this script will initiate every workflow sequentially (one after another), which can be time consuming and may demand significant computational resources. Ensure your system is equipped to handle the load before proceeding.**
+If you wish to run all the workflows at once, you can use the `run_all_workflows.sh` script provided in the root directory. **Please note that executing this script will initiate every workflow sequentially (one after another), which can be time consuming and may demand significant computational resources. Ensure your system is equipped to handle the load before running.**
 ```bash
 $ chmod +x code/run_all_workflows.sh
 $ code/run_all_workflows.sh
