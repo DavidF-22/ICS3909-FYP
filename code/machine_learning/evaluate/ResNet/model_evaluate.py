@@ -18,13 +18,13 @@ from helper_functions.model_utils import (set_seed,
 def main():
     # argument parser for dataset path and learning rate
     parser = argparse.ArgumentParser(description="Load trained model to elvauate the performance of miRNA-mRNA target site classification")
-    parser.add_argument("-rn_type", "--ResNet_type", required=True, default=None, type=str, help="Type of ResNet model to train (small [373,121], medium [1,360,001], large [16,691,073])")
-    parser.add_argument("-e_data", "--encoded_data", required=True, default=None, type=str, help="List of path to the encoded testing dataset (.npy files)")
-    parser.add_argument("-e_labels", "--encoded_labels", required=True, default=None, type=str, help="Lists of path to the encoded testing labels (.npy files)")
-    parser.add_argument("-preds", "--predictions", required=True, default=None, type=str, help="List of paths to prediction files (.tsv files)")
-    parser.add_argument("-reg", "--regularization", required=True, default=None, type=str, help="NoReg or WithReg using in naming the .tsv file")
-    parser.add_argument("-plots", "--plot_plots", required=True, default=None, type=str, help="Wheather to save the training plots or not (true/false)")    
-    parser.add_argument("-seed", "--seed", required=True, type=int, help="Random seed for reproducibility")
+    parser.add_argument("-rn_type", "--ResNet_type", required=True, type=str, help="Type of ResNet model to train (small [373,121], medium [1,360,001], large [16,691,073])")
+    parser.add_argument("-e_data", "--encoded_data", required=True, type=str, help="List of path to the encoded testing dataset (.npy files)")
+    parser.add_argument("-e_labels", "--encoded_labels", required=True, type=str, help="Lists of path to the encoded testing labels (.npy files)")
+    parser.add_argument("-preds", "--predictions", required=True, type=str, help="List of paths to prediction files (.tsv files)")
+    parser.add_argument("-reg", "--regularization", required=True, type=str, help="NoReg or WithReg using in naming the .tsv file")
+    parser.add_argument("-plots", "--plot_plots", required=True, type=str, help="Wheather to save the training plots or not (true/false)")    
+    parser.add_argument("-s", "--seed", required=True, type=int, help="Random seed for reproducibility")
     args = parser.parse_args()
 
     # seeding

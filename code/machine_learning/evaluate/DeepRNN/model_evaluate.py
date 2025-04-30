@@ -28,12 +28,12 @@ def load_data(data_file, label_file):
 def main():
     # argument parser for dataset path and learning rate
     parser = argparse.ArgumentParser(description="Load trained model to elvauate the performance of miRNA-mRNA target site classification")
-    parser.add_argument("-e_data", "--encoded_data", required=True, default=None, type=str, help="List of path to the encoded testing dataset (.npy files)")
-    parser.add_argument("-e_labels", "--encoded_labels", required=True, default=None, type=str, help="Lists of path to the encoded testing labels (.npy files)")
-    parser.add_argument("-preds", "--predictions", required=True, default=None, type=str, help="List of paths to prediction files (.tsv files)")
-    parser.add_argument("-reg", "--regularization", required=True, default=None, type=str, help="NoReg or WithReg using in naming the .tsv file")
-    parser.add_argument("-plots", "--plot_plots", required=True, default=None, type=str, help="Wheather to save the training plots or not (true/false)")    
-    parser.add_argument("-seed", "--seed", required=True, type=int, help="Random seed for reproducibility")
+    parser.add_argument("-e_data", "--encoded_data", required=True, type=str, help="List of path to the encoded testing dataset (.npy files)")
+    parser.add_argument("-e_labels", "--encoded_labels", required=True, type=str, help="Lists of path to the encoded testing labels (.npy files)")
+    parser.add_argument("-preds", "--predictions", required=True, type=str, help="List of paths to prediction files (.tsv files)")
+    parser.add_argument("-reg", "--regularization", required=True, type=str, help="NoReg or WithReg using in naming the .tsv file")
+    parser.add_argument("-plots", "--plot_plots", required=True, type=str, help="Wheather to save the training plots or not (true/false)")    
+    parser.add_argument("-s", "--seed", required=True, type=int, help="Random seed for reproducibility")
     args = parser.parse_args()
 
     # seeding
