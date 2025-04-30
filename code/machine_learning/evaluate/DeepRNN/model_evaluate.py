@@ -47,11 +47,11 @@ def main():
     model_type = "DeepRNN"
     
     # initialise save predictions path
-    results_file_path = f"Saves_{model_type}/DeepRNN_{args.regularization}_evaluation_logs.txt"
+    results_file_path = f"Saves_{model_type}_{args.regularization}/DeepRNN_{args.regularization}_evaluation_logs.txt"
     
     if args.plot_plots == 'true':
         # create directory for saving plots
-        save_dir = f"Saves_{model_type}/DeepRNN_Evaluation"
+        save_dir = f"Saves_{model_type}_{args.regularization}/DeepRNN_Evaluation"
         make_files(os.path.split(save_dir)[0], [os.path.split(save_dir)[1]])
         
     # clear the results file

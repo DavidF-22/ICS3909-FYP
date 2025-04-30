@@ -38,11 +38,11 @@ def main():
     model_type = f"ResNet_{args.ResNet_type.lower()}"
     
     # initialise save predictions path
-    results_file_path = f"Saves_{model_type}/ResNet_{args.regularization}_evaluation_logs.txt"
+    results_file_path = f"Saves_{model_type}_{args.regularization}/ResNet_{args.regularization}_evaluation_logs.txt"
     
     if args.plot_plots == 'true':
         # create directory for saving plots
-        save_dir = f"Saves_{model_type}/ResNet_Evaluation"
+        save_dir = f"Saves_{model_type}_{args.regularization}/ResNet_Evaluation"
         make_files(os.path.split(save_dir)[0], [os.path.split(save_dir)[1]])
         
     # clear the results file

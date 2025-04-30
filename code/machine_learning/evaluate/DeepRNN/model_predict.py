@@ -45,7 +45,7 @@ def main():
         raise ValueError(f"!!! Invalid regularization argument: {args.regularization} - Please use either 'NoReg' or 'WithReg' !!!")
 
     # initialise save predictions path
-    save_dir = "Saves_DeepRNN/DeepRNN_Predictions"
+    save_dir = f"Saves_DeepRNN_{args.regularization}/DeepRNN_Predictions"
     make_files(os.path.split(save_dir)[0], [os.path.split(save_dir)[1]])
     
     count = 1

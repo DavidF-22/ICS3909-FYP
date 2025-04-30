@@ -316,7 +316,7 @@ if [ ! -d "$TESTING_DATASETS_PATH" ]; then
     exit 1
 fi
 
-SAVED_MODELS_PATH="Saves_ResNet_$RESNET_TYPE/ResNet_Models"
+SAVED_MODELS_PATH="Saves_ResNet_${RESNET_TYPE}_${REG_TYPE}/ResNet_Models"
 PREDICTIONS_SCRIPT="code/machine_learning/evaluate/ResNet/model_predict.py"
 
 # ensure model dir exists
@@ -381,7 +381,7 @@ print_echo ""
 # testing_datasets.npy, testing_labels.npy, -preds, -models are required
 # (-plots is optional)
 
-SAVED_PREDICTIONS_PATH="Saves_ResNet_$RESNET_TYPE/ResNet_Predictions"
+SAVED_PREDICTIONS_PATH="Saves_ResNet_${RESNET_TYPE}_${REG_TYPE}/ResNet_Predictions"
 EVALUATIONS_SCRIPT="code/machine_learning/evaluate/ResNet/model_evaluate.py"
 
 # ensure predictions dir exists
@@ -451,6 +451,6 @@ print_echo ""
 print_warning "WARNING: Before rerunning, please rename or move the existing save directories. Otherwise, they will be overwritten."
 
 # move bash log to the save directory
-mv "$PATH_TO_BASH_LOG" "Saves_ResNet_$RESNET_TYPE/"
+mv "$PATH_TO_BASH_LOG" "Saves_ResNet_${RESNET_TYPE}_${REG_TYPE}/"
 
 exit 0

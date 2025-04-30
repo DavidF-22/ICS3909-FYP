@@ -35,6 +35,7 @@ The repository contains the following models for miRNA target site classificatio
 │   ├── BiLSTM_workflow.sh
 │   ├── DeepRNN_workflow.sh
 │   ├── ResNet_workflow.sh
+│   ├── run_all_workflows.sh
 │   ├── helper_functions
 │   │   └── model_utils.py
 │   └── machine_learning
@@ -90,8 +91,8 @@ Encoding scripts handle sequence and binding matrix transformations, while workf
 ## Cloning the Repository
 To clone this repository, use the following command:
 ```bash
-git clone https://github.com/your-username/your-repository.git
-cd your-repository
+$ git clone https://github.com/DavidF-22/ICS3909-FYP.git # or ssh with 'git@github.com:DavidF-22/ICS3909-FYP.git'
+$ cd ./ICS3909-FYP
 ```
 
 ## Setting Up the Environment
@@ -112,20 +113,24 @@ cd your-repository
 ## Running the Shell Scripts
 Before running any shell script in the repository, you must grant execution permissions. For example, to set permissions for the `ResNet_workflow.sh` script in the ResNet model, run:
 ```bash
-chmod +x code/ResNet_workflow.sh
+$ chmod +x code/ResNet_workflow.sh
 ```
 To execute the script, use the file bath to the bash script along with its required user inputs:
 ```bash
-code/ResNet_workflow.sh <user_input>
+$ code/ResNet_workflow.sh <user_input>
 ```
-
+If you wish to run all the workflows at once, you can use the `run_all_workflows.sh` script provided in the root directory. **Please note that executing this script will initiate every workflow sequentially (one after another), which can be time consuming and may demand significant computational resources. Ensure your system is equipped to handle the load before proceeding.**
+```bash
+$ chmod +x code/run_all_workflows.sh
+$ code/run_all_workflows.sh
+```
 ## Script Input Requirements
 Each workflow script accepts a set of command-line arguments. In addition, you can use the -h or --help flag with any script to display the full usage information and a description of each input.
 
 ### ResNet_workflow.sh
 **Usage:**
 ```bash
-code/ResNet_workflow.sh [noncodingRNA | miRNA] [small | medium | large] [noreg | withreg] [plot_true | plot_false] [seed]
+$ code/ResNet_workflow.sh [noncodingRNA | miRNA] [small | medium | large] [noreg | withreg] [plot_true | plot_false] [seed]
 ```
 
 **Arguments:**
@@ -155,11 +160,11 @@ code/ResNet_workflow.sh [noncodingRNA | miRNA] [small | medium | large] [noreg |
 
 **Usage:**
 ```bash
-code/DeepRNN_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false] [seed]
+$ code/DeepRNN_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false] [seed]
 ```
 
 ```bash
-code/BiLSTM_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false] [seed]
+$ code/BiLSTM_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false] [seed]
 ```
 
 **Arguments:**
@@ -195,13 +200,13 @@ You can extract `.gz` files using the `tar` command in Command Prompt or by inst
 - **Mac**
 Simply double-click the file to extract it, or use the command in a Terminal window:
   ```bash
-  gunzip filename.gz
+  $ gunzip filename.gz
   ```
 
 - **Linux**
 Use the following command to decompress the file:
   ```bash
-  gzip -d `__filename__`.gz
+  $ gzip -d `__filename__`.gz
   ```
 
 ## Contact

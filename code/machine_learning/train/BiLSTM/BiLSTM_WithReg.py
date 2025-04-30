@@ -24,9 +24,6 @@ epochs = 20  # number of epochs/dataset iterations
 batch_size = 32  # batch size
 learning_rate = 0.001  # learning rate
 model_type = "BiLSTM"
-# define the directory where you want to save the model and training logs
-results_file_path = f"Saves_{model_type}/BiLSTM_WithReg_training_logs.txt"
-save_dir = f"Saves_{model_type}/BiLSTM_Models"
 
 list_of_large_datasets = ["AGO2_eCLIP_Manakov2022_train_dataset"]
 
@@ -71,6 +68,10 @@ def main():
     # sorting the model and dataset paths and split them into lists
     training_data_files = sorted(args.encoded_data.split(','))
     training_labels_files = sorted(args.encoded_labels.split(','))
+    
+    # define the directory where you want to save the model and training logs
+    results_file_path = f"Saves_{model_type}_{args.regregularization}/BiLSTM_WithReg_training_logs.txt"
+    save_dir = f"Saves_{model_type}_{args.regregularization}/BiLSTM_Models"
     
     # create the save directory
     make_files(os.path.split(save_dir)[0], [os.path.split(save_dir)[1]])
