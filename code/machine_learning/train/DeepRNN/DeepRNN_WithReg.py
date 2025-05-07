@@ -6,7 +6,7 @@ import os
 import argparse
 import numpy as np
 from tensorflow.keras.regularizers import L1, L2, L1L2
-from sklearn.model_selection import KFold
+from sklearn.model_selection import StratifiedKFold
 from DeepRNN_Architectures import DeepRNN
 from helper_functions.model_utils import (set_seed,
                                           #load_data, 
@@ -120,10 +120,10 @@ def main():
                 # initialize lists to hold CV metrics for this config
                 cv_accuracies, cv_losses, cv_f1s, cv_precisions, cv_recalls = [], [], [], [], []
                 
-                # create 5-fold cross validation splitter
-                kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
-                
-                for fold_count, (train_index, val_index) in enumerate(kf.split(encoded_data), start=1):
+                # create 5-fold stratified cross validation splitter
+                kf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
+
+                for fold_count, (train_index, val_index) in enumerate(kf.split(encoded_data, encoded_labels), start=1):
                     print(f"\n--- Fold {fold_count} of {n_splits} ---")
                     
                     # get training and validation data
