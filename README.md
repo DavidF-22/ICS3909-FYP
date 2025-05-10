@@ -11,7 +11,7 @@
 - [Running the Shell Scripts](#running-the-shell-scripts)  
 - [Script Input Requirements](#script-input-requirements)  
   - [ResNet_workflow.sh](#resnet_workflowsh)  
-  - [DeepRNN_workflow.sh and BiLSTM_workflow.sh](#deeprnn_workflowsh-and-bilstm_workflowsh)  
+  - [DeepGRU_workflow.sh and BiLSTM_workflow.sh](#deepgru_workflowsh-and-bilstm_workflowsh)  
 - [Datasets and Data Folder Placeholders](#datasets-and-data-folder-placeholders)  
   - [Dataset Sources](#dataset-sources)  
   - [Unpacking .tsv.gz Files](#unpacking-tsvgz-files)
@@ -25,15 +25,15 @@ This project builds on the [miRBind project](https://www.mdpi.com/2073-4425/13/1
 ## Models Implemented
 The repository contains the following models for miRNA target site classification:
 - **Residual Networks (ResNets)**
-- **Bidirectional Long Short-Term Memory Models (BiLSTMs)**
-- **Deep Recurrent Neural Networks (DeepRNNs)**
+- **Bidirectional Long Short-Term Memory Model networks (BiLSTMs)**
+- **Deep Gated Recurrent Unit nertworks (DeepGRUs)**
 
 ## Project Tree
 ```bash
 .
 ├── code
 │   ├── BiLSTM_workflow.sh
-│   ├── DeepRNN_workflow.sh
+│   ├── DeepGRU_workflow.sh
 │   ├── ResNet_workflow.sh
 │   ├── run_all_workflows.sh
 │   ├── helper_functions
@@ -46,7 +46,7 @@ The repository contains the following models for miRNA target site classificatio
 │       │   ├── BiLSTM
 │       │   │   ├── model_evaluate.py
 │       │   │   └── model_predict.py
-│       │   ├── DeepRNN
+│       │   ├── DeepGRU
 │       │   │   ├── model_evaluate.py
 │       │   │   └── model_predict.py
 │       │   └── ResNet
@@ -57,10 +57,10 @@ The repository contains the following models for miRNA target site classificatio
 │           │   ├── BiLSTM_Architectures.py
 │           │   ├── BiLSTM_NoReg.py
 │           │   └── BiLSTM_WithReg.py
-│           ├── DeepRNN
-│           │   ├── DeepRNN_Architectures.py
-│           │   ├── DeepRNN_NoReg.py
-│           │   └── DeepRNN_WithReg.py
+│           ├── DeepGRU
+│           │   ├── DeepGRU_Architectures.py
+│           │   ├── DeepGRU_NoReg.py
+│           │   └── DeepGRU_WithReg.py
 │           └── ResNet
 │               ├── ResNet_Architectures.py
 │               ├── ResNet_NoReg.py
@@ -71,7 +71,7 @@ The repository contains the following models for miRNA target site classificatio
     │   │   └── README.md
     │   └── training
     │       └── README.md
-    ├── DeepRNN_data
+    ├── DeepGRU_data
     │   ├── testing
     │   │   └── README.md
     │   └── training
@@ -84,7 +84,7 @@ The repository contains the following models for miRNA target site classificatio
 ```
 This project is organized into two main directories: `code` and `data`. The `code` directory contains the workflow scripts, helper functions and machine learning logic, which is further divided into the `encode`, `train` and `evaluate` directories. 
 
-Each model architecture (BiLSTM, DeepRNN, and ResNet) has its own dedicated folder within both train and evaluate, allowing for clear traceability between files and their corresponding architectures. Furthermore, the helper_functions directory contains reusable utility functions that support model building, training, and evaluation across different architectures.
+Each model architecture (BiLSTM, DeepGRU, and ResNet) has its own dedicated folder within both train and evaluate, allowing for clear traceability between files and their corresponding architectures. Furthermore, the helper_functions directory contains reusable utility functions that support model building, training, and evaluation across different architectures.
 
 Encoding scripts handle sequence and binding matrix transformations, while workflow `.sh` scripts in the `root` streamline the execution process. Lastly, the `data` directory is divided by model type and workflow stage (training or testing), each with its own `README` file acting as placeholders to indicate which datasets should be placed there instead of the README file. This setup ensures modularity, clarity, and ease of use.
 
@@ -156,11 +156,11 @@ $ code/ResNet_workflow.sh [noncodingRNA | miRNA] [small | medium | large] [noreg
   Ensures reproducibility by setting a fixed random seed for data processing and model initialization.
 
 
-### DeepRNN_workflow.sh and BiLSTM_workflow.sh
+### DeepGRU_workflow.sh and BiLSTM_workflow.sh
 
 **Usage:**
 ```bash
-$ code/DeepRNN_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false] [seed]
+$ code/DeepGRU_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | plot_false] [seed]
 ```
 
 ```bash
