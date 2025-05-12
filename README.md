@@ -96,7 +96,7 @@ $ cd ./ICS3909-FYP
 ```
 
 ## Setting Up the Environment
-> _**Note:** Some of the libraries used in this project are only compatible with Mac, Linux or Windows Subsystem for Linux (WSL). Running the project on native Windows may cause compatibility issues._
+⚠️ _**Note:** Some of the libraries used in this project are only compatible with Mac, Linux or Windows Subsystem for Linux (WSL). Running the project on native Windows may cause compatibility issues._
 
 1. Ensure you are using a Linux-based system or WSL.
 2. Create a virtual environment (optional but recommended):
@@ -124,6 +124,9 @@ If you wish to run all the workflows at once, you can use the `run_all_workflows
 $ chmod +x code/run_all_workflows.sh
 $ code/run_all_workflows.sh
 ```
+
+**⚠️ IMPORTANT:** When rerunning workflows multiple times, be sure to remove or rename the `Saves_...` folders in each model’s directory before each run—otherwise previously saved outputs will be overwritten. They are automatically named in such a way that when running the `run_all_workflows.sh` script, there will be no clashes, but afterwards they need to be removed or renamed.
+
 ## Script Input Requirements
 Each workflow script accepts a set of command-line arguments. In addition, you can use the -h or --help flag with any script to display the full usage information and a description of each input.
 
@@ -181,12 +184,12 @@ $ code/BiLSTM_workflow.sh [noncodingRNA | miRNA] [noreg | withreg] [plot_true | 
 
   Determines whether to generate plots during the workflow.
 
->_**Note:** Please ensure that you supply the correct inputs corresponding to the desired operation, as mismatches may affect the naming conventions and subsequent mapping of models to plots and results._
+⚠️ _**Note:** Please ensure that you supply the correct inputs corresponding to the desired operation, as mismatches may affect the naming conventions and subsequent mapping of models to plots and results._
 
 ## Datasets and Data Folder Placeholders
 Within the repository, several data folders include placeholder `README.md` files. These placeholders indicate, by file name, which datasets need to be placed in each folder. 
 
-**Note:** The file `AGO2_eCLIP_Manakov2022_full_dataset.tsv` should not be used.
+**⚠️ Note:** The file `AGO2_eCLIP_Manakov2022_full_dataset.tsv` should not be used.
 
 ### Dataset Sources
 All required datasets can be obtained from the following link: [miRBench_Datasets - Zenodo](https://zenodo.org/records/14501607)
