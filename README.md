@@ -1,12 +1,12 @@
 
 # Development of Machine Learning Methods for microRNA target site classification
 
-![Python](https://img.shields.io/badge/Python-3+-blue.svg)
-![Platform](https://img.shields.io/badge/Platform-WSL%20%7C%20Linux%20%7C%20MacOS-lightgrey)
 ![Last Updated](https://img.shields.io/badge/Last%20Updated-May%202025-orange)
+[![Python](https://img.shields.io/badge/Python-3+-blue.svg)](https://www.python.org/)
+[![Platform](https://img.shields.io/badge/Platform-WSL%20%7C%20Linux%20%7C%20MacOS-darkgrey)](https://learn.microsoft.com/en-us/windows/wsl/install)
 [![University](https://img.shields.io/badge/University-University%20of%20Malta%20(UoM)-maroon)](https://www.um.edu.mt/)
-![Field](https://img.shields.io/badge/Course-Artificial%20Intelligence%20(AI)-darkgreen)
-![Field](https://img.shields.io/badge/Field-Bioinformatics-purple)
+[![Field](https://img.shields.io/badge/Course-Artificial%20Intelligence%20(AI)-darkgreen)](https://www.um.edu.mt/ict/ai/)
+[![Field](https://img.shields.io/badge/Field-Bioinformatics-purple)](https://www.um.edu.mt/projects/biogemt/)
 
 ## Table of Contents
 
