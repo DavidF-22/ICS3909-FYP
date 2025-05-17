@@ -6,7 +6,7 @@
 [![Platform](https://img.shields.io/badge/Platform-WSL%20%7C%20Linux%20%7C%20MacOS-darkgrey)](https://learn.microsoft.com/en-us/windows/wsl/install)
 [![University](https://img.shields.io/badge/University-University%20of%20Malta%20(UoM)-maroon)](https://www.um.edu.mt/)
 [![Field](https://img.shields.io/badge/Course-Artificial%20Intelligence%20(AI)-darkgreen)](https://www.um.edu.mt/ict/ai/)
-[![Field](https://img.shields.io/badge/Field-Bioinformatics-purple)](https://www.um.edu.mt/projects/biogemt/)
+[![Area of Interest](https://img.shields.io/badge/Area%20of%20Interest-Bioinformatics-purple)](https://www.um.edu.mt/projects/biogemt/)
 
 ## Table of Contents
 
