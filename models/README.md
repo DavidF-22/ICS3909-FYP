@@ -18,11 +18,11 @@ This directory contains the "optimal" models trained for miRNA target site class
 
 ```bash
 .
-├── ResNet_medium_NoReg_AGO2_eCLIP_Manakov2022_dr0.13.keras        # Top Overall            
-├── ResNet_small_NoReg_AGO2_eCLIP_Manakov2022_dr0.09.keras         # Lightweight & Performant
+├── ResNet_large_L1L2_AGO2_CLASH_Hejret2023_dr0.25_rf0.002.keras   # For generalization            
+├── ResNet_large_NoReg_AGO2_CLASH_Hejret2023_dr0.09.keras          # Stable performance
 ├── ResNet_large_NoReg_AGO2_eCLIP_Manakov2022_dr0.13.keras         # High-capacity variant
-├── ResNet_large_L1L2_AGO2_CLASH_Hejret2023_dr0.25_rf0.002.keras   # For generalization
-└── ResNet_large_NoReg_AGO2_CLASH_Hejret2023_dr0.09.keras          # Stable performance
+├── ResNet_medium_NoReg_AGO2_eCLIP_Manakov2022_dr0.13.keras        # Top Overall
+└── ResNet_small_NoReg_AGO2_eCLIP_Manakov2022_dr0.09.keras         # Lightweight & Performant
 ```
 
 ---

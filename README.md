@@ -89,11 +89,11 @@ The repository contains the following models for miRNA target site classificatio
 │       └── training
 │           └── README.md
 └── models
-    ├── ResNet_medium_NoReg_AGO2_eCLIP_Manakov2022_dr0.13.keras
-    ├── ResNet_small_NoReg_AGO2_eCLIP_Manakov2022_dr0.09.keras
-    ├── ResNet_large_NoReg_AGO2_eCLIP_Manakov2022_dr0.13.keras
     ├── ResNet_large_L1L2_AGO2_CLASH_Hejret2023_dr0.25_rf0.002.keras
-    └── ResNet_large_NoReg_AGO2_CLASH_Hejret2023_dr0.09.keras
+    ├── ResNet_large_NoReg_AGO2_CLASH_Hejret2023_dr0.09.keras
+    ├── ResNet_large_NoReg_AGO2_eCLIP_Manakov2022_dr0.13.keras
+    ├── ResNet_medium_NoReg_AGO2_eCLIP_Manakov2022_dr0.13.keras
+    └── ResNet_small_NoReg_AGO2_eCLIP_Manakov2022_dr0.09.keras
 ```
 This project is organized into two main directories: `code` and `data`. The `code` directory contains the workflow scripts, helper functions and machine learning logic, which is further divided into the `encode`, `train` and `evaluate` directories. 
 
