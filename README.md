@@ -1,6 +1,13 @@
 
 # Development of Machine Learning Methods for microRNA target site classification
 
+![Python](https://img.shields.io/badge/Python-3+-blue.svg)
+![Platform](https://img.shields.io/badge/Platform-WSL%20%7C%20Linux%20%7C%20MacOS-lightgrey)
+![Last Updated](https://img.shields.io/badge/Last%20Updated-May%202025-orange)
+[![University](https://img.shields.io/badge/University-University%20of%20Malta%20(UoM)-maroon)](https://www.um.edu.mt/)
+![Field](https://img.shields.io/badge/Course-Artificial%20Intelligence%20(AI)-darkgreen)
+![Field](https://img.shields.io/badge/Field-Bioinformatics-purple)
+
 ## Table of Contents
 
 - [Project Overview](#project-overview)  
@@ -65,22 +72,28 @@ The repository contains the following models for miRNA target site classificatio
 │               ├── ResNet_Architectures.py
 │               ├── ResNet_NoReg.py
 │               └── ResNet_WithReg.py
-└── data
-    ├── BiLSTM_data
-    │   ├── testing
-    │   │   └── README.md
-    │   └── training
-    │       └── README.md
-    ├── DeepGRU_data
-    │   ├── testing
-    │   │   └── README.md
-    │   └── training
-    │       └── README.md
-    └── ResNet_data
-        ├── testing
-        │   └── README.md
-        └── training
-            └── README.md
+├── data
+│   ├── BiLSTM_data
+│   │   ├── testing
+│   │   │   └── README.md
+│   │   └── training
+│   │       └── README.md
+│   ├── DeepGRU_data
+│   │   ├── testing
+│   │   │   └── README.md
+│   │   └── training
+│   │       └── README.md
+│   └── ResNet_data
+│       ├── testing
+│       │   └── README.md
+│       └── training
+│           └── README.md
+└── models
+    ├── ResNet_medium_NoReg_AGO2_eCLIP_Manakov2022_dr0.13.keras
+    ├── ResNet_small_NoReg_AGO2_eCLIP_Manakov2022_dr0.09.keras
+    ├── ResNet_large_NoReg_AGO2_eCLIP_Manakov2022_dr0.13.keras
+    ├── ResNet_large_L1L2_AGO2_CLASH_Hejret2023_dr0.25_rf0.002.keras
+    └── ResNet_large_NoReg_AGO2_CLASH_Hejret2023_dr0.09.keras
 ```
 This project is organized into two main directories: `code` and `data`. The `code` directory contains the workflow scripts, helper functions and machine learning logic, which is further divided into the `encode`, `train` and `evaluate` directories. 
 
