@@ -32,4 +32,4 @@ This directory contains the "optimal" models trained for miRNA target site class
 - All models are saved in **Keras format** (`.keras`).
 - Metrics reflect average performance over multiple real-world test datasets [miRBench_Datasets - Zenodo](https://zenodo.org/records/14501607).
 
-Feel free to experiment, compare results, or fine-tune further depending on your application!
+Feel free to experiment, compare results or fine-tune further depending on your application.
