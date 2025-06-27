@@ -120,13 +120,8 @@ $ cd ./ICS3909-FYP
    ```
 3. Install the required dependencies:
    ```bash
-   $ pip install -r requirements.txt
+   $ pip install pandas numpy matplotlib tensorflow scikit-learn visualkeras
    ```
-4. Update packages (optional)
-    ```bash
-    # Optionally upgrade installed packages to their latest versions
-    pip install --upgrade -r requirements.txt
-    ```
 
 ## Running the Shell Scripts
 Before running any shell script in the repository, you must grant execution permissions. For example, to set permissions for the `ResNet_workflow.sh` script in the ResNet model, run:
