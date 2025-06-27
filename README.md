@@ -114,9 +114,9 @@ $ cd ./ICS3909-FYP
 1. Ensure you are using a Linux-based system or WSL.
 2. Create a virtual environment (optional but recommended):
    ```bash
-   python3 -m venv .venv                # create python environment
-   source .venv/bin/activate            # activate environment
-   python3 -m pip install --upgrade pip # upgrad pip to latest version
+   $ python3 -m venv .venv                # create python environment
+   $ source .venv/bin/activate            # activate environment
+   $ python3 -m pip install --upgrade pip # upgrad pip to latest version
    ```
 3. Install the required dependencies:
    ```bash
